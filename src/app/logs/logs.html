@@ -1,0 +1,122 @@
+<main class="flex-1 p-6 md:p-10 space-y-6 overflow-y-auto mt-5">
+  <div class="space-y-6">
+
+    <!-- BARRA DE ACCIONES Y FILTROS -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+
+      <!-- Filtros por tipo de log -->
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider mr-2">Filtrar:</span>
+
+        <button
+          (click)="filtrar('TODOS')"
+          [class.bg-slate-900]="filtroNivel === 'TODOS'"
+          [class.text-white]="filtroNivel === 'TODOS'"
+          [class.bg-slate-100]="filtroNivel !== 'TODOS'"
+          [class.text-slate-600]="filtroNivel !== 'TODOS'"
+          class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">
+          Todos
+        </button>
+
+        <button
+          (click)="filtrar('SUCCESS')"
+          [class.bg-emerald-600]="filtroNivel === 'SUCCESS'"
+          [class.text-white]="filtroNivel === 'SUCCESS'"
+          [class.bg-emerald-50]="filtroNivel !== 'SUCCESS'"
+          [class.text-emerald-700]="filtroNivel !== 'SUCCESS'"
+          class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">
+          Success
+        </button>
+
+        <button
+          (click)="filtrar('INFO')"
+          [class.bg-blue-600]="filtroNivel === 'INFO'"
+          [class.text-white]="filtroNivel === 'INFO'"
+          [class.bg-blue-50]="filtroNivel !== 'INFO'"
+          [class.text-blue-700]="filtroNivel !== 'INFO'"
+          class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">
+          Info
+        </button>
+
+        <button
+          (click)="filtrar('WARNING')"
+          [class.bg-amber-500]="filtroNivel === 'WARNING'"
+          [class.text-white]="filtroNivel === 'WARNING'"
+          [class.bg-amber-50]="filtroNivel !== 'WARNING'"
+          [class.text-amber-700]="filtroNivel !== 'WARNING'"
+          class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">
+          Warning
+        </button>
+
+        <button
+          (click)="filtrar('ERROR')"
+          [class.bg-red-600]="filtroNivel === 'ERROR'"
+          [class.text-white]="filtroNivel === 'ERROR'"
+          [class.bg-red-50]="filtroNivel !== 'ERROR'"
+          [class.text-red-700]="filtroNivel !== 'ERROR'"
+          class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">
+          Error
+        </button>
+      </div>
+
+      <!-- Botones de Acción (Refrescar / Limpiar) -->
+      <div class="flex items-center gap-2">
+        <button
+          (click)="cargarLogs()"
+          class="flex items-center gap-2 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-medium transition-colors"
+          title="Actualizar registros">
+          <i class="fa-solid fa-rotate-right" [class.animate-spin]="cargando"></i>
+          <span>Actualizar</span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- TABLA DE LOGS -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 text-[11px] font-bold uppercase tracking-wider">
+              <th class="py-3 px-4">Marca de Tiempo</th>
+              <th class="py-3 px-4">Nivel</th>
+              <th class="py-3 px-4">Módulo</th>
+              <th class="py-3 px-4">Descripción del Registro</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-xs text-slate-700">
+
+            @for (log of logsFiltrados; track log.id) {
+              <tr class="hover:bg-slate-50/80 transition-colors font-mono">
+                <td class="py-3 px-4 text-slate-500 whitespace-nowrap">{{ log.timestamp }}</td>
+                <td class="py-3 px-4 whitespace-nowrap">
+                  <span [ngClass]="{
+                    'bg-emerald-50 text-emerald-700 border-emerald-200': log.nivel === 'SUCCESS',
+                    'bg-blue-50 text-blue-700 border-blue-200': log.nivel === 'INFO',
+                    'bg-amber-50 text-amber-700 border-amber-200': log.nivel === 'WARNING',
+                    'bg-red-50 text-red-700 border-red-200': log.nivel === 'ERROR'
+                  }" class="px-2.5 py-1 rounded-md text-[10px] font-bold border tracking-wide uppercase">
+                    {{ log.nivel }}
+                  </span>
+                </td>
+                <td class="py-3 px-4 font-semibold text-slate-800 whitespace-nowrap">{{ log.modulo }}</td>
+                <td class="py-3 px-4 text-slate-600 font-sans">{{ log.mensaje }}</td>
+              </tr>
+            }
+
+            @if (logsFiltrados.length === 0) {
+              <tr>
+                <td colspan="4" class="text-center py-12 text-slate-400 font-sans">
+                  <i class="fa-regular fa-folder-open text-2xl mb-2 block"></i>
+                  No se encontraron registros para el filtro seleccionado.
+                </td>
+              </tr>
+            }
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</main>

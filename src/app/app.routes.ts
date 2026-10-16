@@ -3,6 +3,7 @@ import { LoginComponent } from './login/login';
 import { MainLayoutComponent } from './layouts/main-layout/main-layout';
 import { DashboardComponent } from './dashboard/dashboard';
 import { UsersComponent } from './users/users';
+import { Logs } from './logs/logs'; // <--- 1. Importa tu componente de logs
 import { authGuard } from './guards/auth-guard';
 
 export const routes: Routes = [
@@ -34,6 +35,11 @@ export const routes: Routes = [
         path: 'usuarios',
         component: UsersComponent,
         data: { titulo: 'GESTIÓN DE USUARIOS', subtitulo: 'Administración de Accesos y Credenciales' }
+      },
+      {
+        path: 'logs',
+        component: Logs, // <--- 2. Agrega la ruta de logs aquí
+        data: { titulo: 'LOGS DEL SISTEMA', subtitulo: 'Depuración y registros de actividad serial' }
       }
     ]
   },

@@ -1,0 +1,14 @@
+<div class="h-screen w-full bg-slate-100 text-slate-800 font-sans flex overflow-hidden">
+  <!-- Barra lateral fija -->
+  <app-sidebar></app-sidebar>
+
+  <!-- Área principal con scroll independiente -->
+  <main class="flex-1 flex flex-col h-full overflow-hidden p-6">
+    <app-header></app-header>
+
+    <!-- Aquí se inyectarán el Dashboard o los Usuarios -->
+    <div class="flex-1 overflow-y-auto">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+</div>

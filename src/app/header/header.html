@@ -1,0 +1,39 @@
+<header class="flex items-center px-6 justify-between pb-4 border-b border-slate-300">
+  <div>
+    <!-- Título dinámico -->
+    <h1 class="text-[20px] font-bold tracking-tight text-slate-900">
+      {{ tituloPagina }}
+    </h1>
+    <!-- Subtítulo dinámico -->
+    <p class="text-[15px] tracking-wider font-medium text-slate-500 mt-0.5">
+      {{ subtituloPagina }}
+    </p>
+  </div>
+
+  <!-- Contenedor derecho: Fecha/Hora + Botón de Cerrar Sesión -->
+  <div class="flex items-center gap-6">
+    <!-- Fecha y Hora -->
+    <div class="flex flex-col items-end">
+      <div class="text-[12px] font-bold tracking-wide text-slate-800">
+        <!-- Muestra la hora -->
+        {{ currentTime | date:'HH:mm:ss' }}
+      </div>
+      <div class="mt-1 text-[12px] text-slate-400 capitalize">
+        <!-- Muestra la fecha -->
+        {{ currentTime | date:'fullDate' }}
+      </div>
+    </div>
+
+     <!-- Separador vertical sutil -->
+    <div class="h-8 w-px bg-slate-200"></div>
+
+    <!-- Botón de Cerrar Sesión Minimalista -->
+    <button
+      (click)="cerrarSesion()"
+      class="flex items-center gap-2 px-2 py-1 rounded-xl text-xs font-medium text-slate-500 hover:text-red-500 transition-all group"
+      title="Cerrar Sesión"
+    >
+      <i class="fa-solid fa-arrow-right-from-bracket text-xs transition-transform group-hover:-translate-x-0.5"></i>
+    </button>
+  </div>
+</header>

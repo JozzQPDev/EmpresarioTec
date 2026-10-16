@@ -1,0 +1,85 @@
+<div class="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 px-4 relative overflow-hidden">
+
+  <!-- Elementos decorativos de fondo minimalistas -->
+  <div class="absolute -top-40 -left-40 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="absolute -bottom-40 -right-40 w-96 h-96 bg-slate-700/10 rounded-full blur-3xl pointer-events-none"></div>
+
+  <!-- Tarjeta de Login -->
+  <div class="w-full max-w-md bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl p-8 border border-slate-200/80 relative z-10 transition-all">
+
+    <!-- Encabezado con Icono de Seguridad -->
+    <div class="text-center mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Sistema de Seguridad</h2>
+      <p class="text-xs text-slate-500 mt-1.5 font-medium">Ingrese sus credenciales para acceder al perímetro</p>
+    </div>
+
+    <!-- Formulario -->
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-5">
+
+      <!-- Campo Correo -->
+      <div>
+        <label for="email" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Correo Electrónico</label>
+        <div class="relative">
+          <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+            <i class="fa-regular fa-envelope text-xs"></i>
+          </span>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-900/80 focus:border-transparent focus:bg-white transition duration-200"
+            placeholder="ejemplo@correo.com"
+          />
+        </div>
+        <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" class="mt-1 text-[11px] text-red-500 font-medium">
+          <small *ngIf="loginForm.get('email')?.errors?.['required']">El correo es obligatorio.</small>
+          <small *ngIf="loginForm.get('email')?.errors?.['email']">Ingrese un correo válido.</small>
+        </div>
+      </div>
+
+      <!-- Campo Contraseña -->
+      <div>
+        <label for="password" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Contraseña</label>
+        <div class="relative">
+          <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+            <i class="fa-regular fa-lock text-xs"></i>
+          </span>
+          <input
+            id="password"
+            type="password"
+            formControlName="password"
+            class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-900/80 focus:border-transparent focus:bg-white transition duration-200"
+            placeholder="••••••••"
+          />
+        </div>
+        <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="mt-1 text-[11px] text-red-500 font-medium">
+          <small *ngIf="loginForm.get('password')?.errors?.['required']">La contraseña es obligatoria.</small>
+          <small *ngIf="loginForm.get('password')?.errors?.['minlength']">Debe tener al menos 4 caracteres.</small>
+        </div>
+      </div>
+
+      <!-- Alerta de Error del Servidor (Flask) -->
+      <div *ngIf="errorMensaje" class="p-3 bg-red-50 border-l-4 border-red-500 text-red-700 text-xs rounded-r-xl flex items-center gap-2">
+        <i class="fa-solid fa-triangle-exclamation text-red-500"></i>
+        <span>{{ errorMensaje }}</span>
+      </div>
+
+      <!-- Botón de Enviar -->
+      <button
+        type="submit"
+        [disabled]="loginForm.invalid || cargando"
+        class="w-full py-3 px-4 bg-slate-900 hover:bg-blue-950 text-white text-xs font-bold uppercase tracking-wider rounded-xl shadow-md hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-900 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+      >
+        <i *ngIf="cargando" class="fa-solid fa-spinner animate-spin"></i>
+        {{ cargando ? 'Verificando acceso...' : 'Iniciar Sesión' }}
+      </button>
+
+    </form>
+
+    <!-- Pie de tarjeta opcional -->
+    <div class="mt-6 text-center border-t border-slate-100 pt-4">
+      <p class="text-[10px] text-slate-400 font-medium">EmpresarioTec • Seguridad Perimetral v1.0</p>
+    </div>
+
+  </div>
+</div>

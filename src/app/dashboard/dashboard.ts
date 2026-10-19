@@ -4,12 +4,11 @@ import { IntrusionService } from '../services/intrusion.service';
 import { IntrusionState, EstadoPerimetro, AlertaCritica, MonitoreoGeneral } from '../models/intrusion.model';
 import { Subscription, interval, of } from 'rxjs';
 import { switchMap, startWith, catchError } from 'rxjs/operators';
-import { HeaderComponent } from '../header/header';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, HeaderComponent],
+  imports: [CommonModule],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })

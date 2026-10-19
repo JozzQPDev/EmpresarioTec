@@ -40,7 +40,7 @@ export class UsersComponent implements OnInit {
 
   ngOnInit(): void {
     this.headerService.cambiarHeader(
-      'GESTIÓN DE USUARIOS',
+      'Gestión De Usuario',
       'Administración de Accesos y Credenciales'
     );
 

@@ -3,7 +3,8 @@ import { LoginComponent } from './login/login';
 import { MainLayoutComponent } from './layouts/main-layout/main-layout';
 import { DashboardComponent } from './dashboard/dashboard';
 import { UsersComponent } from './users/users';
-import { Logs } from './logs/logs'; // <--- 1. Importa tu componente de logs
+import { Logs } from './logs/logs';
+import { Devices } from './devices/devices'; // <--- Importa tu componente de dispositivos
 import { authGuard } from './guards/auth-guard';
 
 export const routes: Routes = [
@@ -29,16 +30,21 @@ export const routes: Routes = [
       {
         path: 'dashboard',
         component: DashboardComponent,
-        data: { titulo: 'PANEL DE CONTROL', subtitulo: 'Perímetro de Seguridad' }
+        data: { titulo: 'Panel De Control', subtitulo: 'Perímetro de Seguridad' }
+      },
+      {
+        path: 'devices',
+        component: Devices, // <--- Ruta de Dispositivos y Pines
+        data: { titulo: 'Dispositivos y Pines', subtitulo: 'Control de Hardware y Arduino' }
       },
       {
         path: 'usuarios',
         component: UsersComponent,
-        data: { titulo: 'GESTIÓN DE USUARIOS', subtitulo: 'Administración de Accesos y Credenciales' }
+        data: { titulo: 'Gestión De Usuario', subtitulo: 'Administración de Accesos y Credenciales' }
       },
       {
         path: 'logs',
-        component: Logs, // <--- 2. Agrega la ruta de logs aquí
+        component: Logs,
         data: { titulo: 'LOGS DEL SISTEMA', subtitulo: 'Depuración y registros de actividad serial' }
       }
     ]

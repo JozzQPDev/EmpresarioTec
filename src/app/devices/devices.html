@@ -1,0 +1,130 @@
+<main class="flex-1 p-6 md:p-10 space-y-6 overflow-y-auto mt-5 bg-slate-50/40">
+
+  <!-- CABECERA DE LA SECCIÓN -->
+  <div class="bg-white rounded-xl p-5 shadow-xs border border-slate-200/70 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div>
+      <h2 class="text-sm font-semibold text-slate-900">Mapa de Hardware y Pines</h2>
+      <p class="text-xs text-slate-400 mt-0.5">Configuración física de los componentes conectados al microcontrolador.</p>
+    </div>
+    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+      Sistema Operativo
+    </span>
+  </div>
+
+  <!-- TARJETAS DE DISPOSITIVOS -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+
+    <!-- Dispositivo 1: Sensor Infrarrojo -->
+    <div class="bg-white rounded-xl p-5 shadow-xs border border-slate-200/70 flex flex-col justify-between space-y-4">
+      <div>
+        <div class="flex items-center justify-between mb-3">
+          <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-700">
+            <i class="fa-solid fa-eye text-xs"></i>
+          </div>
+          <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700">Sensor Digital</span>
+        </div>
+        <h3 class="text-xs font-semibold text-slate-900">Sensor Infrarrojo FC-51</h3>
+        <p class="text-[11px] text-slate-500 mt-1">Detección de presencia perimetral por rebote óptico.</p>
+      </div>
+      <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+        <span class="text-slate-400 font-medium">Pin de Conexión:</span>
+        <span class="font-mono font-semibold text-slate-800 bg-slate-50 px-2 py-0.5 rounded border border-slate-200/60">GPIO 2 (Digital)</span>
+      </div>
+    </div>
+
+    <!-- Dispositivo 2: Alarma Sonora -->
+    <div class="bg-white rounded-xl p-5 shadow-xs border border-slate-200/70 flex flex-col justify-between space-y-4">
+      <div>
+        <div class="flex items-center justify-between mb-3">
+          <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-700">
+            <i class="fa-solid fa-volume-high text-xs"></i>
+          </div>
+          <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-700">Actuador</span>
+        </div>
+        <h3 class="text-xs font-semibold text-slate-900">Buzzer / Zumbador</h3>
+        <p class="text-[11px] text-slate-500 mt-1">Emisión de alerta sonora ante intrusiones críticas.</p>
+      </div>
+      <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+        <span class="text-slate-400 font-medium">Pin de Conexión:</span>
+        <span class="font-mono font-semibold text-slate-800 bg-slate-50 px-2 py-0.5 rounded border border-slate-200/60">GPIO 8 (PWM/Out)</span>
+      </div>
+    </div>
+
+    <!-- Dispositivo 3: Indicador Visual -->
+    <div class="bg-white rounded-xl p-5 shadow-xs border border-slate-200/70 flex flex-col justify-between space-y-4">
+      <div>
+        <div class="flex items-center justify-between mb-3">
+          <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-700">
+            <i class="fa-solid fa-lightbulb text-xs"></i>
+          </div>
+          <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-rose-50 text-rose-700">Actuador</span>
+        </div>
+        <h3 class="text-xs font-semibold text-slate-900">Torreta / LED de Alerta</h3>
+        <p class="text-[11px] text-slate-500 mt-1">Señalización visual intermitente de alta visibilidad.</p>
+      </div>
+      <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+        <span class="text-slate-400 font-medium">Pin de Conexión:</span>
+        <span class="font-mono font-semibold text-slate-800 bg-slate-50 px-2 py-0.5 rounded border border-slate-200/60">GPIO 12 (Digital Out)</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TABLA RESUMEN DE CONEXIONES (PÍNES GENERALES) -->
+  <div class="bg-white rounded-xl shadow-xs border border-slate-200/70 overflow-hidden">
+    <div class="p-4 sm:p-5 border-b border-slate-100">
+      <h2 class="text-sm font-semibold text-slate-900">Tabla de Asignación de Pines (Pinout)</h2>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs text-slate-600">
+        <thead class="bg-slate-50/50 text-[11px] font-medium uppercase tracking-wider text-slate-400 border-b border-slate-100">
+          <tr>
+            <th class="px-5 py-3">Componente</th>
+            <th class="px-5 py-3">Pin Arduino</th>
+            <th class="px-5 py-3">Tipo de Señal</th>
+            <th class="px-5 py-3">Alimentación</th>
+            <th class="px-5 py-3">Estado Actual</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr class="hover:bg-slate-50/50 transition-colors">
+            <td class="px-5 py-3 font-medium text-slate-900">Sensor FC-51</td>
+            <td class="px-5 py-3 font-mono text-slate-500">Pin 2</td>
+            <td class="px-5 py-3">Digital Input</td>
+            <td class="px-5 py-3 text-slate-500">5V</td>
+            <td class="px-5 py-3">
+              <span class="inline-flex items-center gap-1.5 text-emerald-600 font-medium">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Conectado
+              </span>
+            </td>
+          </tr>
+          <tr class="hover:bg-slate-50/50 transition-colors">
+            <td class="px-5 py-3 font-medium text-slate-900">Buzzer Activo</td>
+            <td class="px-5 py-3 font-mono text-slate-500">Pin 8</td>
+            <td class="px-5 py-3">Digital Output</td>
+            <td class="px-5 py-3 text-slate-500">5V</td>
+            <td class="px-5 py-3">
+              <span class="inline-flex items-center gap-1.5 text-emerald-600 font-medium">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Conectado
+              </span>
+            </td>
+          </tr>
+          <tr class="hover:bg-slate-50/50 transition-colors">
+            <td class="px-5 py-3 font-medium text-slate-900">Torreta LED</td>
+            <td class="px-5 py-3 font-mono text-slate-500">Pin 12</td>
+            <td class="px-5 py-3">Digital Output</td>
+            <td class="px-5 py-3 text-slate-500">5V / Relé</td>
+            <td class="px-5 py-3">
+              <span class="inline-flex items-center gap-1.5 text-emerald-600 font-medium">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Conectado
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</main>

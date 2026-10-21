@@ -1,13 +1,16 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { HeaderService } from '../services/header.service';
-// Importa tu servicio de logs o Supabase si ya lo tienes creado, por ejemplo:
-// import { LogsService } from '../services/logs.service';
+import { IntrusionService } from '../services/intrusion.service';
+import { AlertaCritica, MonitoreoGeneral } from '../models/intrusion.model';
+import { forkJoin } from 'rxjs';
+import { skeleton } from 'boneyard-js'; // 👈 Importación corregida en minúscula según la definición de tipos
 
 interface SystemLog {
-  id: number;
+  id: string;
   timestamp: string;
-  nivel: 'INFO' | 'WARNING' | 'ERROR' | 'SUCCESS';
+  nivel: 'WARNING' | 'ERROR' | 'SUCCESS';
   modulo: string;
   mensaje: string;
 }
@@ -15,38 +18,72 @@ interface SystemLog {
 @Component({
   selector: 'app-logs',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule], // No requiere registrarlo en imports si boneyard actúa a nivel de CLI/runtime global
   templateUrl: './logs.html',
   styleUrls: ['./logs.css']
 })
 export class Logs implements OnInit {
+  cargando: boolean = true; // 👈 Estado para controlar el esqueleto de carga
+  editando: boolean = false;
+  filtroNivel = 'TODOS';
+  busquedaTexto = '';
+  error = '';
+  logs: SystemLog[] = [];
 
-  cargando: boolean = false;
-  filtroNivel: string = 'TODOS';
-
-  // Datos de ejemplo (puedes reemplazarlo por tu llamada a Supabase o Flask)
-  logs: SystemLog[] = [
-    { id: 1, timestamp: '2026-10-16 12:15:30', nivel: 'SUCCESS', modulo: 'AuthService', mensaje: 'Inicio de sesión exitoso - admin@empresariotec.com' },
-    { id: 2, timestamp: '2026-10-16 12:10:05', nivel: 'WARNING', modulo: 'Arduino-Sensor', mensaje: 'Advertencia: Movimiento detectado en perímetro norte.' },
-    { id: 3, timestamp: '2026-10-16 11:50:12', nivel: 'INFO', modulo: 'Flask-API', mensaje: 'Conexión establecida correctamente con la base de datos Supabase.' },
-    { id: 4, timestamp: '2026-10-16 11:30:00', nivel: 'ERROR', modulo: 'Hardware', mensaje: 'Pérdida temporal de señal en el pin digital 7.' },
-  ];
-
-  constructor(private headerService: HeaderService) {}
+  constructor(
+    private headerService: HeaderService,
+    private intrusionService: IntrusionService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
-    // Actualizamos el título del header al entrar a esta sección
     this.headerService.cambiarHeader('Logs del Sistema', 'Depuración y registros de actividad serial');
     this.cargarLogs();
   }
 
   cargarLogs(): void {
     this.cargando = true;
-    // Aquí harías la llamada a tu servicio:
-    // this.logsService.obtenerLogs().subscribe(data => { this.logs = data; this.cargando = false; });
-    setTimeout(() => {
-      this.cargando = false;
-    }, 500);
+    this.error = '';
+    this.cdr.detectChanges();
+
+    forkJoin({
+      alertas: this.intrusionService.obtenerHistorialAlertas(),
+      monitoreo: this.intrusionService.obtenerHistorialMonitoreo()
+    }).subscribe({
+      next: ({ alertas, monitoreo }) => {
+        this.logs = this.crearLogs(alertas, monitoreo);
+        this.cargando = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error al cargar historial de actividad:', err);
+        this.error = 'No se pudieron cargar los registros. Verifica la conexión con la API.';
+        this.cargando = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  private crearLogs(alertas: AlertaCritica[], monitoreo: MonitoreoGeneral[]): SystemLog[] {
+    const logsAlertas = alertas.map((alerta): SystemLog => ({
+      id: `alerta-${alerta.id}`,
+      timestamp: alerta.fecha_hora,
+      nivel: Number(alerta.codigo) >= 3 ? 'ERROR' : 'WARNING',
+      modulo: alerta.dispositivos?.nombre || `Dispositivo #${alerta.dispositivo_id}`,
+      mensaje: alerta.mensaje
+    }));
+
+    const logsMonitoreo = monitoreo.map((evento): SystemLog => ({
+      id: `monitoreo-${evento.id}`,
+      timestamp: evento.fecha_hora,
+      nivel: 'SUCCESS',
+      modulo: evento.dispositivos?.nombre || `Dispositivo #${evento.dispositivo_id}`,
+      mensaje: evento.mensaje
+    }));
+
+    return [...logsAlertas, ...logsMonitoreo].sort(
+      (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    );
   }
 
   filtrar(nivel: string): void {
@@ -54,14 +91,19 @@ export class Logs implements OnInit {
   }
 
   get logsFiltrados(): SystemLog[] {
-    if (this.filtroNivel === 'TODOS') {
-      return this.logs;
-    }
-    return this.logs.filter(log => log.nivel === this.filtroNivel);
+    return this.logs.filter(log => {
+      const cumpleNivel = this.filtroNivel === 'TODOS' || log.nivel === this.filtroNivel;
+      const textoQuery = this.busquedaTexto.toLowerCase().trim();
+      const cumpleTexto = !textoQuery || 
+        log.mensaje.toLowerCase().includes(textoQuery) || 
+        log.modulo.toLowerCase().includes(textoQuery);
+
+      return cumpleNivel && cumpleTexto;
+    });
   }
 
-  limpiarLogs(): void {
-    // Lógica para limpiar logs si lo requieres
+  limpiarLogsLocales(): void {
     this.logs = [];
+    this.cdr.detectChanges();
   }
 }

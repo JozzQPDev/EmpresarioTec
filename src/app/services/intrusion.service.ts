@@ -1,7 +1,15 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
-import { IntrusionState, EstadoPerimetro, Usuario, Rol } from '../models/intrusion.model';
+import {
+  AlertaCritica,
+  Dispositivo,
+  IntrusionState,
+  EstadoPerimetro,
+  MonitoreoGeneral,
+  Usuario,
+  Rol
+} from '../models/intrusion.model';
 
 export interface ApiResponse {
   codigo: number;
@@ -26,19 +34,23 @@ export class IntrusionService {
         return {
           estado: estadoValido,
           intrusiones_totales: Number(res.intrusiones) || 0,
-          dispositivo: 'Sensor FC-51 (Pin 2)',
+          dispositivo: 'Dispositivo de perímetro',
           mensaje: res.mensaje
         };
       })
     );
   }
 
-  obtenerHistorialMonitoreo(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/historial/monitoreo`);
+  obtenerHistorialMonitoreo(): Observable<MonitoreoGeneral[]> {
+    return this.http.get<MonitoreoGeneral[]>(`${this.apiUrl}/historial/monitoreo`);
   }
 
-  obtenerHistorialAlertas(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/historial/alertas`);
+  obtenerHistorialAlertas(): Observable<AlertaCritica[]> {
+    return this.http.get<AlertaCritica[]>(`${this.apiUrl}/historial/alertas`);
+  }
+
+  obtenerDispositivos(): Observable<Dispositivo[]> {
+    return this.http.get<Dispositivo[]>(`${this.apiUrl}/dispositivos`);
   }
 
   // ==================== MÉTODOS DE USUARIOS ====================

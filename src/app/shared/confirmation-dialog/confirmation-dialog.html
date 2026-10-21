@@ -1,0 +1,93 @@
+<div
+  *ngIf="open"
+  class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/55 p-4 backdrop-blur-sm"
+  (click)="cancel()"
+  (keydown.escape)="cancel()">
+  <section
+    role="alertdialog"
+    aria-modal="true"
+    aria-labelledby="confirmation-dialog-title"
+    aria-describedby="confirmation-dialog-message"
+    class="w-full max-w-md overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl"
+    (click)="$event.stopPropagation()">
+    <div class="flex items-start gap-3 border-b border-slate-100 px-5 py-4">
+      <div
+        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
+        [ngClass]="tone === 'danger'
+          ? 'bg-rose-100 text-rose-600'
+          : tone === 'success'
+            ? 'bg-emerald-100 text-emerald-600'
+            : 'bg-slate-100 text-slate-600'">
+        <i
+          [ngClass]="tone === 'danger'
+            ? 'fa-solid fa-triangle-exclamation'
+            : tone === 'success'
+              ? 'fa-solid fa-circle-check'
+              : 'fa-solid fa-circle-question'"></i>
+      </div>
+      <div class="flex-1">
+        <h2 id="confirmation-dialog-title" class="text-sm font-semibold text-slate-900">
+          {{ title }}
+        </h2>
+        <p id="confirmation-dialog-message" class="mt-1 text-xs leading-5 text-slate-600">
+          {{ message }}
+        </p>
+      </div>
+      <button
+        type="button"
+        (click)="cancel()"
+        [disabled]="busy"
+        aria-label="Cerrar confirmación"
+        class="flex h-7 w-7 items-center justify-center rounded-md text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 disabled:opacity-50">
+        <i class="fa-solid fa-xmark text-sm"></i>
+      </button>
+    </div>
+
+    <div class="space-y-4 p-5">
+      <p *ngIf="details" class="rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-3 text-sm text-slate-800">
+        {{ details }}
+      </p>
+
+      <div *ngIf="confirmationText !== null">
+        <label for="confirmation-dialog-input" class="mb-1.5 block text-xs font-medium text-slate-700">
+          {{ confirmationPrompt || 'Escribe ' + confirmationText + ' para confirmar' }}
+        </label>
+        <input
+          id="confirmation-dialog-input"
+          type="text"
+          [ngModel]="confirmationValue"
+          (ngModelChange)="updateConfirmationValue($event)"
+          name="confirmationValue"
+          autocomplete="off"
+          spellcheck="false"
+          [disabled]="busy"
+          [attr.aria-invalid]="confirmationValue.trim().length > 0 && !canConfirm"
+          [placeholder]="confirmationText"
+          class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-100 disabled:bg-slate-100">
+      </div>
+
+      <div class="flex justify-end gap-2 border-t border-slate-100 pt-4">
+        <button
+          type="button"
+          (click)="cancel()"
+          [disabled]="busy"
+          class="rounded-lg bg-slate-100 px-3.5 py-2 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50">
+          {{ cancelLabel }}
+        </button>
+        <button
+          type="button"
+          (click)="confirm()"
+          [disabled]="!canConfirm"
+          class="inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs font-medium text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+          [ngClass]="tone === 'danger'
+            ? 'bg-rose-600 hover:bg-rose-700 disabled:bg-rose-300'
+            : tone === 'success'
+              ? 'bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-300'
+              : 'bg-slate-900 hover:bg-slate-800 disabled:bg-slate-400'">
+          <i *ngIf="busy" class="fa-solid fa-spinner animate-spin"></i>
+          {{ confirmLabel }}
+        </button>
+      </div>
+    </div>
+  </section>
+</div>

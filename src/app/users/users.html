@@ -1,84 +1,132 @@
-<main class="flex-1 p-6 md:p-10 space-y-6 overflow-y-auto mt-5 relative bg-slate-50/40">
+<main class="flex-1 p-6 md:p-10 space-y-6 overflow-y-auto mt-2 relative">
 
   <!-- ALERTA FLOTANTE (TOAST) -->
   <div *ngIf="mensajeAlerta"
-       class="fixed top-6 right-6 z-50 flex items-center gap-2.5 px-4 py-2.5 rounded-lg shadow-md border text-xs font-medium transition-all animate-in fade-in slide-in-from-top-4 duration-300"
+       class="fixed top-6 right-6 z-50 flex items-center gap-2.5 px-4 py-2.5 rounded-xl shadow-lg border text-xs font-medium transition-all animate-in fade-in slide-in-from-top-4 duration-300"
        [ngClass]="tipoAlerta === 'success' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-rose-50 text-rose-800 border-rose-200'">
     <i class="text-sm" [ngClass]="tipoAlerta === 'success' ? 'fa-solid fa-circle-check text-emerald-600' : 'fa-solid fa-circle-exclamation text-rose-600'"></i>
     <span>{{ mensajeAlerta }}</span>
   </div>
 
   <!-- MODAL FLOTANTE (CREAR / EDITAR) -->
-  <div *ngIf="mostrarModal" class="fixed inset-0 z-50 h-screen w-screen flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4 overflow-y-auto">
-    <div class="bg-white rounded-xl shadow-xl border border-slate-200/60 w-full max-w-md overflow-hidden my-auto animate-in fade-in zoom-in duration-200">
+  <div *ngIf="mostrarModal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4 min-h-screen w-full">
+    <div class="fixed inset-0" (click)="cerrarModal()"></div>
 
-      <!-- Cabecera del Modal -->
-      <div class="px-5 py-3.5 border-b border-slate-100 flex justify-between items-center bg-white">
-        <h2 class="text-sm font-semibold text-slate-900">
-          {{ editando ? 'Editar Usuario' : 'Nuevo Usuario' }}
-        </h2>
-        <button (click)="cerrarModal()" class="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-slate-600 rounded-md transition-colors">
+    <div class="relative bg-white rounded-2xl shadow-2xl border border-slate-200/80 w-full max-w-lg overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200 z-10">
+      <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+        <div class="flex items-center gap-2.5">
+          <div>
+            <h2 class="text-sm font-bold text-slate-900">
+              {{ editando ? 'Editar Usuario' : 'Registrar Nuevo Usuario' }}
+            </h2>
+            <p class="text-[11px] text-slate-400">Complete los datos de credenciales y acceso</p>
+          </div>
+        </div>
+        <button type="button" (click)="cerrarModal()" class="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
           <i class="fa-solid fa-xmark text-sm"></i>
         </button>
       </div>
 
-      <!-- Formulario dentro del Modal -->
-      <form (ngSubmit)="guardarUsuario()" class="p-5 space-y-3.5">
+      <form (ngSubmit)="guardarUsuario()" class="p-6 space-y-4">
         <div>
-          <label class="block text-xs font-medium text-slate-500 mb-1">Nombre</label>
-          <input type="text" [(ngModel)]="usuarioForm.nombre" name="nombre" required placeholder="Nombre completo"
-            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900 transition-all">
+          <label class="block text-xs font-semibold text-slate-700 mb-1.5">Nombre Completo</label>
+          <input type="text" [(ngModel)]="usuarioForm.nombre" name="nombre" required placeholder="Ej. Juan Pérez"
+            class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-all">
         </div>
 
         <div>
-          <label class="block text-xs font-medium text-slate-500 mb-1">Email</label>
-          <input type="email" [(ngModel)]="usuarioForm.email" name="email" required placeholder="correo@ejemplo.com"
-            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900 transition-all">
+          <label class="block text-xs font-semibold text-slate-700 mb-1.5">Correo Electrónico</label>
+          <input type="email" [(ngModel)]="usuarioForm.email" name="email" required placeholder="usuario@empresariotec.com"
+            class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-all">
         </div>
 
         <div *ngIf="!editando">
-          <label class="block text-xs font-medium text-slate-500 mb-1">Contraseña</label>
+          <label class="block text-xs font-semibold text-slate-700 mb-1.5">Contraseña de Acceso</label>
           <input type="password" [(ngModel)]="usuarioForm.password" name="password" required placeholder="••••••••"
-            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900 transition-all">
+            class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-all">
         </div>
 
         <div>
-          <label class="block text-xs font-medium text-slate-500 mb-1">Rol</label>
+          <label class="block text-xs font-semibold text-slate-700 mb-1.5">Rol en el Sistema</label>
           <select [(ngModel)]="usuarioForm.rol_id" name="rol_id" required
-            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900 transition-all">
-            <option value="" disabled selected>Seleccionar rol</option>
+            class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-all">
+            <option value="" disabled selected>Seleccione un rol asignado</option>
             <option *ngFor="let rol of roles" [value]="rol.id">{{ rol.nombre }}</option>
           </select>
         </div>
 
-        <!-- Botones de Acción del Modal -->
-        <div class="flex justify-end gap-2 pt-3 border-t border-slate-100 mt-4">
+        <div class="flex items-center justify-between p-3.5 bg-slate-50/70 border border-slate-200/80 rounded-xl my-2">
+          <div>
+            <label for="activoToggle" class="text-xs font-bold text-slate-800 cursor-pointer block">
+              Usuario Activo
+            </label>
+            <p class="text-[11px] text-slate-400">
+              Habilitar acceso y credenciales de inicio de sesión
+            </p>
+          </div>
+
+          <label for="activoToggle" class="relative inline-flex items-center cursor-pointer select-none">
+            <input 
+              type="checkbox" 
+              id="activoToggle" 
+              [(ngModel)]="usuarioForm.activo" 
+              name="activo" 
+              class="sr-only peer">
+            <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-slate-900"></div>
+          </label>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 mt-2">
           <button type="button" (click)="cerrarModal()"
-            class="px-3.5 py-2 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">
+            class="px-4 py-2.5 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">
             Cancelar
           </button>
           <button type="submit"
-            class="px-4 py-2 text-xs font-medium text-white bg-slate-900 hover:bg-slate-800 rounded-lg transition-colors">
-            {{ editando ? 'Guardar cambios' : 'Crear usuario' }}
+            class="px-5 py-2.5 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-xl shadow-xs transition-all">
+            {{ editando ? 'Guardar Cambios' : 'Crear Usuario' }}
           </button>
         </div>
       </form>
-
     </div>
   </div>
 
-  <!-- TABLA DE USUARIOS -->
+  <!-- COMPONENTE DE DIÁLOGO DE CONFIRMACIÓN -->
+  <app-confirmation-dialog
+    *ngIf="usuarioAEliminar || confirmacionEdicion"
+    [open]="!!usuarioAEliminar || confirmacionEdicion"
+    [title]="usuarioAEliminar ? '¿Eliminar cuenta de usuario?' : 'Confirmar edición'"
+    [message]="usuarioAEliminar
+      ? 'Esta acción es permanente y revocará todos los accesos del usuario. Confirme el nombre de la cuenta para continuar.'
+      : '¿Deseas guardar y aplicar los cambios realizados a este usuario?'"
+    [details]="usuarioAEliminar
+      ? usuarioAEliminar.nombre + ' · ' + usuarioAEliminar.email
+      : usuarioForm.nombre + ' · ' + usuarioForm.email"
+    [confirmLabel]="usuarioAEliminar
+      ? (eliminandoUsuario ? 'Eliminando…' : 'Eliminar usuario')
+      : (actualizandoUsuario ? 'Guardando…' : 'Guardar cambios')"
+    [confirmationText]="usuarioAEliminar?.nombre ?? null"
+    [confirmationPrompt]="usuarioAEliminar
+      ? 'Escribe ' + usuarioAEliminar.nombre + ' para confirmar'
+      : ''"
+    [(confirmationValue)]="nombreConfirmacionEliminacion"
+    [tone]="usuarioAEliminar ? 'danger' : 'primary'"
+    [busy]="eliminandoUsuario || actualizandoUsuario"
+    (confirmed)="confirmarAccion()"
+    (cancelled)="cerrarConfirmacion()">
+  </app-confirmation-dialog>
+
+  <!-- TABLA DE USUARIOS CON SKELETON LOADER -->
   <div class="bg-white rounded-xl shadow-xs border border-slate-200/70 overflow-hidden">
     <div class="p-4 sm:p-5 border-b border-slate-100 flex justify-between items-center">
       <div class="flex items-center gap-2">
-        <h2 class="text-sm font-semibold text-slate-900">Usuarios</h2>
+        <h2 class="text-sm font-semibold text-slate-900">Directorio de Usuarios</h2>
         <span class="text-[11px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-medium">
           {{ usuarios.length }}
         </span>
       </div>
       <button (click)="abrirModalCrear()"
-        class="px-3.5 py-2 text-xs font-medium text-white bg-slate-900 hover:bg-slate-800 rounded-lg transition-colors flex items-center gap-1.5 shadow-xs">
-        <i class="fa-solid fa-plus text-[10px]"></i> Nuevo usuario
+        class="px-4 py-2 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-xl transition-all flex items-center gap-1.5 shadow-xs">
+        <i class="fa-solid fa-user-plus text-[11px]"></i> Nuevo usuario
       </button>
     </div>
 
@@ -94,48 +142,80 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-100">
-          <tr *ngFor="let u of usuarios" class="hover:bg-slate-50/50 transition-colors">
-            <td class="px-5 py-3 font-medium text-slate-900">
-              <div class="flex items-center gap-2.5">
-                <div class="w-7 h-7 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center font-semibold text-[10px]">
-                  {{ u.nombre.charAt(0) }}
+          
+          <!-- ==================== SKELETON LOADER (CARGANDO = TRUE) ==================== -->
+          <ng-container *ngIf="cargando">
+            <tr *ngFor="let i of [1, 2, 3, 4]" class="animate-pulse">
+              <td class="px-5 py-4">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-7 h-7 rounded-lg bg-slate-200"></div>
+                  <div class="h-3.5 bg-slate-200 rounded-md w-32"></div>
                 </div>
-                <span>{{ u.nombre }}</span>
-              </div>
-            </td>
-            <td class="px-5 py-3 text-slate-500">{{ u.email }}</td>
-            <td class="px-5 py-3">
-              <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-700">
-                {{ u.roles?.nombre || ('Rol #' + u.rol_id) }}
-              </span>
-            </td>
-            <td class="px-5 py-3">
-              <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium"
-                [ngClass]="u.activo ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'">
-                <span class="w-1.5 h-1.5 rounded-full" [ngClass]="u.activo ? 'bg-emerald-500' : 'bg-rose-500'"></span>
-                {{ u.activo ? 'Activo' : 'Inactivo' }}
-              </span>
-            </td>
-            <td class="px-5 py-3 text-right whitespace-nowrap">
-              <div class="inline-flex items-center gap-0.5">
-                <button (click)="editarUsuarioModal(u)" title="Editar" class="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-md transition-colors">
-                  <i class="fa-solid fa-pen text-[11px]"></i>
-                </button>
-                <button (click)="eliminarUsuario(u.id)" title="Eliminar" class="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors">
-                  <i class="fa-solid fa-trash text-[11px]"></i>
-                </button>
-              </div>
-            </td>
-          </tr>
+              </td>
+              <td class="px-5 py-4">
+                <div class="h-3.5 bg-slate-200 rounded-md w-44"></div>
+              </td>
+              <td class="px-5 py-4">
+                <div class="h-5 bg-slate-200 rounded-md w-20"></div>
+              </td>
+              <td class="px-5 py-4">
+                <div class="h-5 bg-slate-200 rounded-full w-16"></div>
+              </td>
+              <td class="px-5 py-4 text-right">
+                <div class="inline-flex gap-2 justify-end">
+                  <div class="w-7 h-7 bg-slate-200 rounded-lg"></div>
+                  <div class="w-7 h-7 bg-slate-200 rounded-lg"></div>
+                </div>
+              </td>
+            </tr>
+          </ng-container>
 
-          <tr *ngIf="usuarios.length === 0">
-            <td colspan="5" class="px-5 py-12 text-center text-slate-400">
-              <div class="flex flex-col items-center justify-center space-y-2">
-                <i class="fa-solid fa-users-slash text-xl text-slate-300"></i>
-                <p class="text-xs">No hay usuarios registrados.</p>
-              </div>
-            </td>
-          </tr>
+          <!-- ==================== TABLA REAL (CARGANDO = FALSE) ==================== -->
+          <ng-container *ngIf="!cargando">
+            <tr *ngFor="let u of usuarios" class="hover:bg-slate-50/50 transition-colors">
+              <td class="px-5 py-3 font-medium text-slate-900">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-[10px]">
+                    {{ u.nombre.charAt(0) }}
+                  </div>
+                  <span>{{ u.nombre }}</span>
+                </div>
+              </td>
+              <td class="px-5 py-3 font-mono text-slate-500">{{ u.email }}</td>
+              <td class="px-5 py-3">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-medium bg-slate-100 text-slate-700 border border-slate-200/60">
+                  {{ u.roles?.nombre || ('Rol #' + u.rol_id) }}
+                </span>
+              </td>
+              <td class="px-5 py-3">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium"
+                  [ngClass]="u.activo ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60' : 'bg-rose-50 text-rose-700 border border-rose-200/60'">
+                  <span class="w-1.5 h-1.5 rounded-full" [ngClass]="u.activo ? 'bg-emerald-500' : 'bg-rose-500'"></span>
+                  {{ u.activo ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td class="px-5 py-3 text-right whitespace-nowrap">
+                <div class="inline-flex items-center gap-1">
+                  <button (click)="editarUsuarioModal(u)" title="Editar" class="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors">
+                    <i class="fa-solid fa-pen text-[11px]"></i>
+                  </button>
+                  <button (click)="abrirModalEliminar(u)" [attr.aria-label]="'Eliminar usuario ' + u.nombre" title="Eliminar" class="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors">
+                    <i class="fa-solid fa-trash text-[11px]"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <tr *ngIf="usuarios.length === 0">
+              <td colspan="5" class="px-5 py-12 text-center text-slate-400">
+                <div class="flex flex-col items-center justify-center space-y-2">
+                  <i class="fa-solid fa-users-slash text-xl text-slate-300"></i>
+                  <p class="text-xs">No hay usuarios registrados en el sistema.</p>
+                </div>
+              </td>
+            </tr>
+          </ng-container>
+
         </tbody>
       </table>
     </div>

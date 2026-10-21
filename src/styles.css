@@ -2,3 +2,35 @@
 @import '@fortawesome/fontawesome-free/css/all.min.css';
 
 @import 'tailwindcss';
+
+/* ==========================================================================
+   ESTILOS GLOBALES - SCROLLBAR PERSONALIZADO (Slate Theme)
+   ========================================================================== */
+
+/* Ancho general de la barra para navegadores basados en WebKit (Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+  width: 2px;  /* Vertical */
+  height: 6px; /* Horizontal */
+}
+
+/* El carril/fondo por donde se desliza la barra */
+::-webkit-scrollbar-track {
+  background: #ffffff; /* Fondo muy oscuro, acorde a tu paleta slate-950 */
+}
+
+/* El control deslizante (thumb) */
+::-webkit-scrollbar-thumb {
+  background: #000000; /* Color slate-700 */
+  border-radius: 9999px; /* Bordes completamente redondeados */
+}
+
+/* Efecto al pasar el mouse por encima de la barra */
+::-webkit-scrollbar-thumb:hover {
+  background: #000000; /* Color slate-600 más claro */
+}
+
+/* Soporte para navegadores modernos estándar (Firefox) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #334155 #ffffff00;
+}

@@ -1,124 +1,146 @@
-<main class="flex-1 p-6 md:p-10 space-y-6 overflow-y-auto mt-5 bg-slate-50/40">
-  <div class="space-y-6">
+<main class="flex-1 p-6 md:p-10 space-y-6 overflow-y-auto mt-2">
 
-    <!-- BARRA DE ACCIONES Y FILTROS -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200/70 shadow-xs">
-
-      <!-- Filtros por tipo de log -->
-      <div class="flex items-center gap-1.5 flex-wrap">
-        <span class="text-[11px] font-medium text-slate-400 uppercase tracking-wider mr-1.5">Filtrar:</span>
-
-        <button
-          (click)="filtrar('TODOS')"
-          [class.bg-slate-900]="filtroNivel === 'TODOS'"
-          [class.text-white]="filtroNivel === 'TODOS'"
-          [class.bg-slate-100]="filtroNivel !== 'TODOS'"
-          [class.text-slate-600]="filtroNivel !== 'TODOS'"
-          class="px-3 py-1.5 rounded-lg text-xs font-medium transition-all">
-          Todos
-        </button>
-
-        <button
-          (click)="filtrar('SUCCESS')"
-          [class.bg-emerald-600]="filtroNivel === 'SUCCESS'"
-          [class.text-white]="filtroNivel === 'SUCCESS'"
-          [class.bg-emerald-50]="filtroNivel !== 'SUCCESS'"
-          [class.text-emerald-700]="filtroNivel !== 'SUCCESS'"
-          class="px-3 py-1.5 rounded-lg text-xs font-medium transition-all">
-          Success
-        </button>
-
-        <button
-          (click)="filtrar('INFO')"
-          [class.bg-blue-600]="filtroNivel === 'INFO'"
-          [class.text-white]="filtroNivel === 'INFO'"
-          [class.bg-blue-50]="filtroNivel !== 'INFO'"
-          [class.text-blue-700]="filtroNivel !== 'INFO'"
-          class="px-3 py-1.5 rounded-lg text-xs font-medium transition-all">
-          Info
-        </button>
-
-        <button
-          (click)="filtrar('WARNING')"
-          [class.bg-amber-500]="filtroNivel === 'WARNING'"
-          [class.text-white]="filtroNivel === 'WARNING'"
-          [class.bg-amber-50]="filtroNivel !== 'WARNING'"
-          [class.text-amber-700]="filtroNivel !== 'WARNING'"
-          class="px-3 py-1.5 rounded-lg text-xs font-medium transition-all">
-          Warning
-        </button>
-
-        <button
-          (click)="filtrar('ERROR')"
-          [class.bg-rose-600]="filtroNivel === 'ERROR'"
-          [class.text-white]="filtroNivel === 'ERROR'"
-          [class.bg-rose-50]="filtroNivel !== 'ERROR'"
-          [class.text-rose-700]="filtroNivel !== 'ERROR'"
-          class="px-3 py-1.5 rounded-lg text-xs font-medium transition-all">
-          Error
-        </button>
-      </div>
-
-      <!-- Botones de Acción (Refrescar) -->
-      <div class="flex items-center gap-2">
-        <button
-          (click)="cargarLogs()"
-          class="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs font-medium transition-colors"
-          title="Actualizar registros">
-          <i class="fa-solid fa-rotate-right text-[11px]" [class.animate-spin]="cargando"></i>
-          <span>Actualizar</span>
-        </button>
-      </div>
-
+  <!-- BARRA DE FILTROS Y BÚSQUEDA -->
+  <div class="bg-white rounded-xl p-4 sm:p-5 shadow-xs border border-slate-200/70 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    
+    <!-- Filtros por Nivel (Botones) -->
+    <div class="flex flex-wrap items-center gap-1.5">
+      <button 
+        (click)="filtrar('TODOS')"
+        [class]="filtroNivel === 'TODOS' ? 'bg-slate-900 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+        class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all">
+        Todos
+      </button>
+      <button 
+        (click)="filtrar('SUCCESS')"
+        [class]="filtroNivel === 'SUCCESS' ? 'bg-emerald-600 text-white shadow-xs' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'"
+        class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all">
+        Éxito / Monitoreo
+      </button>
+      <button 
+        (click)="filtrar('WARNING')"
+        [class]="filtroNivel === 'WARNING' ? 'bg-amber-600 text-white shadow-xs' : 'bg-amber-50 text-amber-700 hover:bg-amber-100'"
+        class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all">
+        Advertencias
+      </button>
+      <button 
+        (click)="filtrar('ERROR')"
+        [class]="filtroNivel === 'ERROR' ? 'bg-rose-600 text-white shadow-xs' : 'bg-rose-50 text-rose-700 hover:bg-rose-100'"
+        class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all">
+        Críticos / Alertas
+      </button>
     </div>
 
-    <!-- TABLA DE LOGS -->
-    <div class="bg-white rounded-xl border border-slate-200/70 shadow-xs overflow-hidden">
+    <!-- Barra de Búsqueda de Texto Libre y Botón Recargar -->
+    <div class="flex items-center gap-2 w-full md:w-auto">
+      <div class="relative flex-1 md:w-64">
+        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+          <i class="fa-solid fa-magnifying-glass text-xs"></i>
+        </span>
+        <input 
+          type="text" 
+          [(ngModel)]="busquedaTexto" 
+          placeholder="Buscar en logs..." 
+          class="w-full pl-9 pr-3 py-2 bg-slate-50/50 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 focus:bg-white transition-all">
+      </div>
+
+      <button 
+        (click)="cargarLogs()" 
+        [disabled]="cargando"
+        title="Actualizar registros"
+        class="p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition-colors flex items-center justify-center shrink-0 disabled:opacity-50">
+        <i class="fa-solid fa-rotate text-xs" [ngClass]="{'animate-spin': cargando}"></i>
+      </button>
+    </div>
+
+  </div>
+
+  <!-- ALERTA DE ERROR EN LA CARGA -->
+  <div *ngIf="error" class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium flex items-center gap-2.5">
+    <i class="fa-solid fa-triangle-exclamation text-rose-600"></i>
+    <span>{{ error }}</span>
+  </div>
+
+  <!-- TABLA DE LOGS Y REGISTROS ENVUELTA EN BONEYARD -->
+    <div class="bg-white rounded-xl shadow-xs border border-slate-200/70 overflow-hidden">
+      
+      <div class="p-4 sm:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/30">
+        <div class="flex items-center gap-2">
+          <h3 class="text-sm font-bold text-slate-900">Historial de Eventos Serial y Supabase</h3>
+          <span class="text-[11px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-mono font-medium">
+            {{ logsFiltrados.length }} registros
+          </span>
+        </div>
+        <button 
+          (click)="limpiarLogsLocales()" 
+          class="text-xs text-slate-400 hover:text-rose-600 transition-colors font-medium">
+          Limpiar vista
+        </button>
+      </div>
+
       <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse text-xs">
-          <thead>
-            <tr class="bg-slate-50/50 border-b border-slate-100 text-slate-400 text-[11px] font-medium uppercase tracking-wider">
-              <th class="py-3 px-5">Marca de Tiempo</th>
-              <th class="py-3 px-5">Nivel</th>
-              <th class="py-3 px-5">Módulo</th>
-              <th class="py-3 px-5">Descripción del Registro</th>
+        <table class="w-full text-left text-xs text-slate-600">
+          <thead class="bg-slate-50/50 text-[11px] font-medium uppercase tracking-wider text-slate-400 border-b border-slate-100">
+            <tr>
+              <th class="px-5 py-3">Fecha / Hora</th>
+              <th class="px-5 py-3">Nivel</th>
+              <th class="px-5 py-3">Módulo / Dispositivo</th>
+              <th class="px-5 py-3">Mensaje del Sistema</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-100 text-slate-600">
+          <tbody class="divide-y divide-slate-100">
+            
+            <!-- Fila de Registro -->
+            <tr *ngFor="let log of logsFiltrados" class="hover:bg-slate-50/50 transition-colors">
+              
+              <td class="px-5 py-3 font-mono text-slate-500 whitespace-nowrap">
+                {{ log.timestamp | date:'medium' }}
+              </td>
 
-            @for (log of logsFiltrados; track log.id) {
-              <tr class="hover:bg-slate-50/50 transition-colors">
-                <td class="py-3 px-5 font-mono text-slate-400 text-[11px] whitespace-nowrap">{{ log.timestamp }}</td>
-                <td class="py-3 px-5 whitespace-nowrap">
-                  <span [ngClass]="{
+              <td class="px-5 py-3 whitespace-nowrap">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-semibold border"
+                  [ngClass]="{
                     'bg-emerald-50 text-emerald-700 border-emerald-200/60': log.nivel === 'SUCCESS',
-                    'bg-blue-50 text-blue-700 border-blue-200/60': log.nivel === 'INFO',
                     'bg-amber-50 text-amber-700 border-amber-200/60': log.nivel === 'WARNING',
                     'bg-rose-50 text-rose-700 border-rose-200/60': log.nivel === 'ERROR'
-                  }" class="px-2 py-0.5 rounded text-[10px] font-semibold border tracking-wide uppercase">
-                    {{ log.nivel }}
-                  </span>
-                </td>
-                <td class="py-3 px-5 font-medium text-slate-800 whitespace-nowrap">{{ log.modulo }}</td>
-                <td class="py-3 px-5 text-slate-600">{{ log.mensaje }}</td>
-              </tr>
-            }
+                  }">
+                  <span class="w-1.5 h-1.5 rounded-full"
+                    [ngClass]="{
+                      'bg-emerald-500': log.nivel === 'SUCCESS',
+                      'bg-amber-500': log.nivel === 'WARNING',
+                      'bg-rose-500': log.nivel === 'ERROR'
+                    }"></span>
+                  {{ log.nivel }}
+                </span>
+              </td>
 
-            @if (logsFiltrados.length === 0) {
-              <tr>
-                <td colspan="4" class="text-center py-12 text-slate-400">
-                  <div class="flex flex-col items-center justify-center space-y-2">
-                    <i class="fa-regular fa-folder-open text-xl text-slate-300"></i>
-                    <p class="text-xs">No se encontraron registros para el filtro seleccionado.</p>
-                  </div>
-                </td>
-              </tr>
-            }
+              <td class="px-5 py-3 font-medium text-slate-800 whitespace-nowrap">
+                <div class="flex items-center gap-1.5">
+                  <i class="fa-solid fa-microchip text-slate-400 text-[11px]"></i>
+                  <span>{{ log.modulo }}</span>
+                </div>
+              </td>
+
+              <td class="px-5 py-3 text-slate-700 font-mono text-[11px]">
+                {{ log.mensaje }}
+              </td>
+
+            </tr>
+
+            <!-- Estado vacio si no hay registros o coincidencias -->
+            <tr *ngIf="logsFiltrados.length === 0">
+              <td colspan="4" class="px-5 py-16 text-center text-slate-400">
+                <div class="flex flex-col items-center justify-center space-y-2">
+                  <i class="fa-solid fa-terminal text-2xl text-slate-300"></i>
+                  <p class="text-xs font-medium">No se encontraron registros de logs que coincidan con los filtros.</p>
+                </div>
+              </td>
+            </tr>
 
           </tbody>
         </table>
       </div>
+
     </div>
 
-  </div>
 </main>

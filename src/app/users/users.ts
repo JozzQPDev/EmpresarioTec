@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { IntrusionService } from '../services/intrusion.service';
 import { HeaderService } from '../services/header.service';
 import { Usuario, Rol } from '../models/intrusion.model';
+import { ConfirmationDialogComponent } from '../shared/confirmation-dialog/confirmation-dialog';
 
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ConfirmationDialogComponent],
   styleUrl: './users.css',
   templateUrl: './users.html',
 })
@@ -24,9 +25,15 @@ export class UsersComponent implements OnInit {
     activo: true
   };
 
+  cargando: boolean = true; // 👈 Estado para controlar el esqueleto de carga
   editando: boolean = false;
   usuarioIdEditando?: number;
   mostrarModal: boolean = false;
+  usuarioAEliminar: Usuario | null = null;
+  nombreConfirmacionEliminacion = '';
+  eliminandoUsuario = false;
+  confirmacionEdicion = false;
+  actualizandoUsuario = false;
 
   mensajeAlerta: string = '';
   tipoAlerta: 'success' | 'error' = 'success';
@@ -35,7 +42,7 @@ export class UsersComponent implements OnInit {
   constructor(
     private intrusionService: IntrusionService,
     private headerService: HeaderService,
-    private cdr: ChangeDetectorRef // 👈 Inyección del detector de cambios
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -48,13 +55,21 @@ export class UsersComponent implements OnInit {
   }
 
   cargarDatos(): void {
+    this.cargando = true;
+    this.cdr.detectChanges();
+
+    // Cargamos usuarios y roles de forma paralela
     this.intrusionService.obtenerUsuarios().subscribe({
       next: (data) => {
-        console.log('DATOS ASIGNADOS A LA TABLA:', data);
         this.usuarios = data;
-        this.cdr.detectChanges(); // 👈 Fuerza el pintado inmediato en la vista
+        this.cargando = false;
+        this.cdr.detectChanges();
       },
-      error: (err) => console.error('Error al cargar usuarios:', err)
+      error: (err) => {
+        console.error('Error al cargar usuarios:', err);
+        this.cargando = false;
+        this.cdr.detectChanges();
+      }
     });
 
     this.intrusionService.obtenerRoles().subscribe({
@@ -69,6 +84,7 @@ export class UsersComponent implements OnInit {
   abrirModalCrear(): void {
     this.resetForm();
     this.mostrarModal = true;
+    this.cdr.detectChanges();
   }
 
   editarUsuarioModal(usuario: Usuario): void {
@@ -81,26 +97,19 @@ export class UsersComponent implements OnInit {
       activo: usuario.activo ?? true
     };
     this.mostrarModal = true;
+    this.cdr.detectChanges();
   }
 
   cerrarModal(): void {
     this.mostrarModal = false;
+    this.confirmacionEdicion = false;
     this.resetForm();
+    this.cdr.detectChanges();
   }
 
   guardarUsuario(): void {
     if (this.editando && this.usuarioIdEditando !== undefined) {
-      this.intrusionService.actualizarUsuario(this.usuarioIdEditando, this.usuarioForm).subscribe({
-        next: () => {
-          this.cerrarModal();
-          this.cargarDatos();
-          this.mostrarAlerta('Usuario actualizado correctamente', 'success');
-        },
-        error: (err) => {
-          console.error('Error al actualizar usuario:', err);
-          this.mostrarAlerta('Error al actualizar el usuario', 'error');
-        }
-      });
+      this.confirmacionEdicion = true;
     } else {
       this.intrusionService.crearUsuario(this.usuarioForm).subscribe({
         next: () => {
@@ -116,20 +125,86 @@ export class UsersComponent implements OnInit {
     }
   }
 
-  eliminarUsuario(id?: number): void {
-    if (id === undefined) return;
-    if (confirm('¿Estás seguro de eliminar este usuario?')) {
-      this.intrusionService.eliminarUsuario(id).subscribe({
-        next: () => {
-          this.cargarDatos();
-          this.mostrarAlerta('Usuario eliminado correctamente', 'success');
-        },
-        error: (err) => {
-          console.error('Error al eliminar usuario:', err);
-          this.mostrarAlerta('No se pudo eliminar el usuario', 'error');
-        }
-      });
+  confirmarAccion(): void {
+    if (this.usuarioAEliminar) {
+      this.confirmarEliminacion();
+      return;
     }
+
+    if (this.confirmacionEdicion) {
+      this.ejecutarActualizacion();
+    }
+  }
+
+  cerrarConfirmacion(): void {
+    if (this.eliminandoUsuario || this.actualizandoUsuario) return;
+
+    if (this.usuarioAEliminar) {
+      this.cerrarModalEliminar();
+    } else {
+      this.confirmacionEdicion = false;
+    }
+  }
+
+  private ejecutarActualizacion(): void {
+    if (!this.editando || this.usuarioIdEditando === undefined || this.actualizandoUsuario) return;
+
+    this.actualizandoUsuario = true;
+    this.intrusionService.actualizarUsuario(this.usuarioIdEditando, this.usuarioForm).subscribe({
+      next: () => {
+        this.actualizandoUsuario = false;
+        this.confirmacionEdicion = false;
+        this.cerrarModal();
+        this.cargarDatos();
+        this.mostrarAlerta('Usuario actualizado correctamente', 'success');
+      },
+      error: (err) => {
+        console.error('Error al actualizar usuario:', err);
+        this.actualizandoUsuario = false;
+        this.mostrarAlerta('Error al actualizar el usuario', 'error');
+      }
+    });
+  }
+
+  abrirModalEliminar(usuario: Usuario): void {
+    if (usuario.id === undefined) {
+      console.error('No se puede eliminar un usuario sin identificador.');
+      this.mostrarAlerta('No se puede eliminar este usuario porque no tiene identificador.', 'error');
+      return;
+    }
+
+    this.usuarioAEliminar = usuario;
+    this.nombreConfirmacionEliminacion = '';
+    this.cdr.detectChanges();
+  }
+
+  cerrarModalEliminar(): void {
+    if (this.eliminandoUsuario) return;
+
+    this.usuarioAEliminar = null;
+    this.nombreConfirmacionEliminacion = '';
+    this.cdr.detectChanges();
+  }
+
+  confirmarEliminacion(): void {
+    if (!this.usuarioAEliminar?.id || this.eliminandoUsuario) return;
+
+    const usuarioId = this.usuarioAEliminar.id;
+    this.eliminandoUsuario = true;
+
+    this.intrusionService.eliminarUsuario(usuarioId).subscribe({
+      next: () => {
+        this.eliminandoUsuario = false;
+        this.cerrarModalEliminar();
+        this.cargarDatos();
+        this.mostrarAlerta('Usuario eliminado correctamente', 'success');
+      },
+      error: (err) => {
+        console.error('Error al eliminar usuario:', err);
+        this.eliminandoUsuario = false;
+        this.mostrarAlerta('No se pudo eliminar el usuario', 'error');
+      }
+    });
   }
 
   resetForm(): void {
@@ -152,6 +227,7 @@ export class UsersComponent implements OnInit {
 
     this.alertaTimer = setTimeout(() => {
       this.mensajeAlerta = '';
+      this.cdr.detectChanges();
     }, 3500);
   }
 }

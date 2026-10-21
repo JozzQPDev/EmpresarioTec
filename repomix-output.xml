@@ -1,0 +1,2802 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+public/
+  favicon.ico
+src/
+  app/
+    dashboard/
+      dashboard.css
+      dashboard.html
+      dashboard.spec.ts
+      dashboard.ts
+    devices/
+      devices.css
+      devices.html
+      devices.spec.ts
+      devices.ts
+    guards/
+      auth-guard.spec.ts
+      auth-guard.ts
+    header/
+      header.css
+      header.html
+      header.spec.ts
+      header.ts
+    layouts/
+      main-layout/
+        main-layout.html
+        main-layout.ts
+    login/
+      login.css
+      login.html
+      login.spec.ts
+      login.ts
+    logs/
+      logs.css
+      logs.html
+      logs.spec.ts
+      logs.ts
+    models/
+      intrusion.model.ts
+    services/
+      auth.service.ts
+      header.service.ts
+      intrusion.service.ts
+    shared/
+      confirmation-dialog/
+        confirmation-dialog.html
+        confirmation-dialog.ts
+    sidebar/
+      sidebar.css
+      sidebar.html
+      sidebar.spec.ts
+      sidebar.ts
+    users/
+      users.css
+      users.html
+      users.spec.ts
+      users.ts
+    app.config.ts
+    app.css
+    app.html
+    app.routes.ts
+    app.spec.ts
+    app.ts
+  index.html
+  main.ts
+  styles.css
+.editorconfig
+.gitignore
+.postcssrc.json
+.prettierrc
+angular.json
+package.json
+README.md
+tsconfig.app.json
+tsconfig.json
+tsconfig.spec.json
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="src/app/shared/confirmation-dialog/confirmation-dialog.html">
+<div
+  *ngIf="open"
+  class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/55 p-4 backdrop-blur-sm"
+  (click)="cancel()"
+  (keydown.escape)="cancel()">
+  <section
+    role="alertdialog"
+    aria-modal="true"
+    aria-labelledby="confirmation-dialog-title"
+    aria-describedby="confirmation-dialog-message"
+    class="w-full max-w-md overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl"
+    (click)="$event.stopPropagation()">
+    <div class="flex items-start gap-3 border-b border-slate-100 px-5 py-4">
+      <div
+        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
+        [ngClass]="tone === 'danger'
+          ? 'bg-rose-100 text-rose-600'
+          : tone === 'success'
+            ? 'bg-emerald-100 text-emerald-600'
+            : 'bg-slate-100 text-slate-600'">
+        <i
+          [ngClass]="tone === 'danger'
+            ? 'fa-solid fa-triangle-exclamation'
+            : tone === 'success'
+              ? 'fa-solid fa-circle-check'
+              : 'fa-solid fa-circle-question'"></i>
+      </div>
+      <div class="flex-1">
+        <h2 id="confirmation-dialog-title" class="text-sm font-semibold text-slate-900">
+          {{ title }}
+        </h2>
+        <p id="confirmation-dialog-message" class="mt-1 text-xs leading-5 text-slate-600">
+          {{ message }}
+        </p>
+      </div>
+      <button
+        type="button"
+        (click)="cancel()"
+        [disabled]="busy"
+        aria-label="Cerrar confirmación"
+        class="flex h-7 w-7 items-center justify-center rounded-md text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 disabled:opacity-50">
+        <i class="fa-solid fa-xmark text-sm"></i>
+      </button>
+    </div>
+
+    <div class="space-y-4 p-5">
+      <p *ngIf="details" class="rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-3 text-sm text-slate-800">
+        {{ details }}
+      </p>
+
+      <div *ngIf="confirmationText !== null">
+        <label for="confirmation-dialog-input" class="mb-1.5 block text-xs font-medium text-slate-700">
+          {{ confirmationPrompt || 'Escribe ' + confirmationText + ' para confirmar' }}
+        </label>
+        <input
+          id="confirmation-dialog-input"
+          type="text"
+          [ngModel]="confirmationValue"
+          (ngModelChange)="updateConfirmationValue($event)"
+          name="confirmationValue"
+          autocomplete="off"
+          spellcheck="false"
+          [disabled]="busy"
+          [attr.aria-invalid]="confirmationValue.trim().length > 0 && !canConfirm"
+          [placeholder]="confirmationText"
+          class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-100 disabled:bg-slate-100">
+      </div>
+
+      <div class="flex justify-end gap-2 border-t border-slate-100 pt-4">
+        <button
+          type="button"
+          (click)="cancel()"
+          [disabled]="busy"
+          class="rounded-lg bg-slate-100 px-3.5 py-2 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50">
+          {{ cancelLabel }}
+        </button>
+        <button
+          type="button"
+          (click)="confirm()"
+          [disabled]="!canConfirm"
+          class="inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs font-medium text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+          [ngClass]="tone === 'danger'
+            ? 'bg-rose-600 hover:bg-rose-700 disabled:bg-rose-300'
+            : tone === 'success'
+              ? 'bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-300'
+              : 'bg-slate-900 hover:bg-slate-800 disabled:bg-slate-400'">
+          <i *ngIf="busy" class="fa-solid fa-spinner animate-spin"></i>
+          {{ confirmLabel }}
+        </button>
+      </div>
+    </div>
+  </section>
+</div>
+</file>
+
+<file path="src/app/shared/confirmation-dialog/confirmation-dialog.ts">
+import { CommonModule } from '@angular/common';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+
+export type ConfirmationTone = 'danger' | 'primary' | 'success';
+
+@Component({
+  selector: 'app-confirmation-dialog',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './confirmation-dialog.html',
+})
+export class ConfirmationDialogComponent {
+  @Input() open = false;
+  @Input() title = 'Confirmar acción';
+  @Input() message = '';
+  @Input() details = '';
+  @Input() confirmLabel = 'Confirmar';
+  @Input() cancelLabel = 'Cancelar';
+  @Input() confirmationText: string | null = null;
+  @Input() confirmationPrompt = '';
+  @Input() confirmationValue = '';
+  @Input() tone: ConfirmationTone = 'primary';
+  @Input() busy = false;
+
+  @Output() confirmed = new EventEmitter<void>();
+  @Output() cancelled = new EventEmitter<void>();
+  @Output() confirmationValueChange = new EventEmitter<string>();
+
+  get canConfirm(): boolean {
+    if (this.busy) return false;
+    if (this.confirmationText === null) return true;
+
+    return this.confirmationText.trim().length > 0
+      && this.confirmationValue.trim().toLocaleLowerCase()
+        === this.confirmationText.trim().toLocaleLowerCase();
+  }
+
+  updateConfirmationValue(value: string): void {
+    this.confirmationValue = value;
+    this.confirmationValueChange.emit(value);
+  }
+
+  confirm(): void {
+    if (this.canConfirm) this.confirmed.emit();
+  }
+
+  cancel(): void {
+    if (!this.busy) this.cancelled.emit();
+  }
+}
+</file>
+
+<file path="src/app/dashboard/dashboard.css">
+
+</file>
+
+<file path="src/app/dashboard/dashboard.spec.ts">
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { DashboardComponent } from './dashboard';
+import { IntrusionService } from '../services/intrusion.service';
+import { EstadoPerimetro } from '../models/intrusion.model';
+import { of } from 'rxjs';
+
+describe('Dashboard', () => {
+  let component: DashboardComponent;
+  let fixture: ComponentFixture<DashboardComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [DashboardComponent],
+      providers: [{
+        provide: IntrusionService,
+        useValue: {
+          obtenerDispositivos: () => of([{ id: 1, nombre: 'Arduino Perímetro' }]),
+          obtenerEstado: () => of({
+            estado: EstadoPerimetro.ZONA_SEGURA,
+            intrusiones_totales: 0,
+            dispositivo: 'Dispositivo de perímetro'
+          }),
+          obtenerHistorialAlertas: () => of([]),
+          obtenerHistorialMonitoreo: () => of([])
+        }
+      }],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(DashboardComponent);
+    component = fixture.componentInstance;
+    await fixture.whenStable();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+</file>
+
+<file path="src/app/devices/devices.css">
+
+</file>
+
+<file path="src/app/devices/devices.html">
+<main class="flex-1 p-6 md:p-10 space-y-6 overflow-y-auto mt-5 bg-slate-50/40">
+  <section class="bg-white rounded-xl p-5 shadow-xs border border-slate-200/70">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div>
+        <h2 class="text-sm font-semibold text-slate-900">Dispositivos registrados</h2>
+        <p class="text-xs text-slate-400 mt-0.5">Información recibida desde la API del sistema.</p>
+      </div>
+      <button
+        type="button"
+        (click)="cargarDispositivos()"
+        [disabled]="cargando"
+        class="px-3.5 py-2 text-xs font-medium text-white bg-slate-900 hover:bg-slate-800 disabled:opacity-60 rounded-lg transition-colors">
+        {{ cargando ? 'Cargando...' : 'Actualizar' }}
+      </button>
+    </div>
+  </section>
+
+  <div *ngIf="error" role="alert" class="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-xs text-rose-700">
+    {{ error }}
+  </div>
+
+  <div *ngIf="cargando && dispositivos.length === 0" class="bg-white rounded-xl p-8 text-center text-xs text-slate-400 border border-slate-200/70">
+    Cargando dispositivos...
+  </div>
+
+  <div *ngIf="!cargando && !error && dispositivos.length === 0" class="bg-white rounded-xl p-8 text-center text-xs text-slate-400 border border-slate-200/70">
+    No hay dispositivos registrados en la API.
+  </div>
+
+  <div *ngIf="dispositivos.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+    <article
+      *ngFor="let dispositivo of dispositivos"
+      class="bg-white rounded-xl p-5 shadow-xs border border-slate-200/70 space-y-4">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <h3 class="text-sm font-semibold text-slate-900">
+            {{ dispositivo.nombre || 'Dispositivo sin nombre' }}
+          </h3>
+          <p class="text-xs text-slate-500 mt-1">
+            {{ dispositivo.ubicacion || 'Ubicación no especificada' }}
+          </p>
+        </div>
+        <span
+          *ngIf="dispositivo.activo !== undefined"
+          class="px-2 py-0.5 rounded text-[10px] font-semibold"
+          [ngClass]="dispositivo.activo ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'">
+          {{ dispositivo.activo ? 'Activo' : 'Inactivo' }}
+        </span>
+      </div>
+      <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+        <div class="space-y-2">
+          <div class="flex items-center justify-between gap-4">
+            <span class="text-slate-400 font-medium">ID del dispositivo</span>
+            <span class="font-mono font-semibold text-slate-800">{{ dispositivo.id }}</span>
+          </div>
+          <div *ngIf="dispositivo.puerto_com" class="flex items-center justify-between gap-4">
+            <span class="text-slate-400 font-medium">Puerto serial</span>
+            <span class="font-mono text-slate-700">{{ dispositivo.puerto_com }}</span>
+          </div>
+          <div *ngIf="dispositivo.fecha_registro" class="flex items-center justify-between gap-4">
+            <span class="text-slate-400 font-medium">Fecha de registro</span>
+            <span class="text-slate-700">{{ dispositivo.fecha_registro | date:'mediumDate' }}</span>
+          </div>
+        </div>
+      </div>
+    </article>
+  </div>
+</main>
+</file>
+
+<file path="src/app/devices/devices.spec.ts">
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Devices } from './devices';
+import { IntrusionService } from '../services/intrusion.service';
+import { of } from 'rxjs';
+
+describe('Devices', () => {
+  let component: Devices;
+  let fixture: ComponentFixture<Devices>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [Devices],
+      providers: [{
+        provide: IntrusionService,
+        useValue: { obtenerDispositivos: () => of([]) }
+      }],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(Devices);
+    component = fixture.componentInstance;
+    await fixture.whenStable();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+</file>
+
+<file path="src/app/devices/devices.ts">
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { IntrusionService } from '../services/intrusion.service';
+import { Dispositivo } from '../models/intrusion.model';
+import { HeaderService } from '../services/header.service';
+
+@Component({
+  standalone: true,
+  imports: [CommonModule],
+  selector: 'app-devices',
+  styleUrl: './devices.css',
+  templateUrl: './devices.html',
+})
+export class Devices implements OnInit {
+  dispositivos: Dispositivo[] = [];
+  cargando = false;
+  error = '';
+
+  constructor(
+    private intrusionService: IntrusionService,
+    private headerService: HeaderService,
+    private cdr: ChangeDetectorRef
+  ) {}
+
+  ngOnInit(): void {
+    this.headerService.cambiarHeader(
+      'Dispositivos',
+      'Dispositivos registrados en el sistema'
+    );
+    this.cargarDispositivos();
+  }
+
+  cargarDispositivos(): void {
+    this.cargando = true;
+    this.error = '';
+
+    this.intrusionService.obtenerDispositivos().subscribe({
+      next: (dispositivos) => {
+        this.dispositivos = dispositivos;
+        this.cargando = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error al cargar dispositivos:', err);
+        this.error = 'No se pudieron cargar los dispositivos. Verifica la conexión con la API.';
+        this.cargando = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+}
+</file>
+
+<file path="src/app/guards/auth-guard.spec.ts">
+import { TestBed } from '@angular/core/testing';
+import { CanActivateFn } from '@angular/router';
+import { authGuard } from './auth-guard';
+
+describe('authGuard', () => {
+  const executeGuard: CanActivateFn = (...guardParameters) =>
+    TestBed.runInInjectionContext(() => authGuard(...guardParameters));
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+  });
+
+  it('should be created', () => {
+    expect(executeGuard).toBeTruthy();
+  });
+});
+</file>
+
+<file path="src/app/guards/auth-guard.ts">
+import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
+import { AuthService } from '../services/auth.service';
+
+export const authGuard: CanActivateFn = (route, state) => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+
+  // Si el usuario está autenticado, permite el paso
+  if (authService.estaAutenticado()) {
+    return true;
+  }
+
+  // Si no está autenticado, lo patea al login
+  router.navigate(['/login']);
+  return false;
+};
+</file>
+
+<file path="src/app/header/header.css">
+
+</file>
+
+<file path="src/app/header/header.spec.ts">
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HeaderComponent } from './header';
+
+describe('HeaderComponent', () => {
+  let component: HeaderComponent;
+  let fixture: ComponentFixture<HeaderComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [HeaderComponent]
+    })
+    .compileComponents();
+
+    fixture = TestBed.createComponent(HeaderComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+
+  // Limpiamos el timer después de cada prueba para que no marque error
+  afterEach(() => {
+    component.ngOnDestroy();
+  });
+});
+</file>
+
+<file path="src/app/header/header.ts">
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { HeaderService } from '../services/header.service';
+import { AuthService } from '../services/auth.service';
+import { Subscription } from 'rxjs';
+
+@Component({
+  selector: 'app-header',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './header.html'
+})
+export class HeaderComponent implements OnInit, OnDestroy {
+  currentTime: Date = new Date();
+  tituloPagina: string = 'Panel de Control';
+  subtituloPagina: string = 'Perímetro de Seguridad';
+
+  private timerId: any;
+  private sub?: Subscription;
+
+  constructor(
+    private headerService: HeaderService,
+    private cdr: ChangeDetectorRef,
+    private authService: AuthService,
+    private router: Router
+  ) {}
+
+  ngOnInit(): void {
+    this.timerId = setInterval(() => {
+      this.currentTime = new Date();
+    }, 1000);
+
+    this.sub = this.headerService.header$.subscribe(data => {
+      this.tituloPagina = data.titulo;
+      this.subtituloPagina = data.subtitulo;
+      this.cdr.detectChanges();
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.timerId) clearInterval(this.timerId);
+    this.sub?.unsubscribe();
+  }
+
+  cerrarSesion(): void {
+    this.authService.logout();
+    this.router.navigate(['/login']);
+  }
+}
+</file>
+
+<file path="src/app/layouts/main-layout/main-layout.html">
+<div class="h-screen w-full bg-slate-100 text-slate-800 font-sans flex overflow-hidden">
+  <!-- Barra lateral fija -->
+  <app-sidebar></app-sidebar>
+
+  <!-- Área principal con scroll independiente -->
+  <main class="flex-1 flex flex-col h-full overflow-hidden p-6">
+    <app-header></app-header>
+
+    <!-- Aquí se inyectarán el Dashboard o los Usuarios -->
+    <div class="flex-1 overflow-y-auto">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+</div>
+</file>
+
+<file path="src/app/layouts/main-layout/main-layout.ts">
+import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+import { SidebarComponent } from '../../sidebar/sidebar'; // Ajusta la ruta a tu sidebar
+import { HeaderComponent } from '../../header/header';     // Ajusta la ruta a tu header
+
+@Component({
+  selector: 'app-main-layout',
+  standalone: true,
+  imports: [RouterOutlet, SidebarComponent, HeaderComponent],
+  templateUrl: './main-layout.html'
+})
+export class MainLayoutComponent {}
+</file>
+
+<file path="src/app/login/login.css">
+
+</file>
+
+<file path="src/app/login/login.html">
+<div class="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 px-4 relative overflow-hidden">
+
+  <!-- Elementos decorativos de fondo minimalistas -->
+  <div class="absolute -top-40 -left-40 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="absolute -bottom-40 -right-40 w-96 h-96 bg-slate-700/10 rounded-full blur-3xl pointer-events-none"></div>
+
+  <!-- Tarjeta de Login -->
+  <div class="w-full max-w-md bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl p-8 border border-slate-200/80 relative z-10 transition-all">
+
+    <!-- Encabezado con Icono de Seguridad -->
+    <div class="text-center mb-8">
+      <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Sistema de Seguridad</h2>
+      <p class="text-xs text-slate-500 mt-1.5 font-medium">Ingrese sus credenciales para acceder al perímetro</p>
+    </div>
+
+    <!-- Formulario -->
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-5">
+
+      <!-- Campo Correo -->
+      <div>
+        <label for="email" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Correo Electrónico</label>
+        <div class="relative">
+          <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+            <i class="fa-regular fa-envelope text-xs"></i>
+          </span>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-900/80 focus:border-transparent focus:bg-white transition duration-200"
+            placeholder="ejemplo@correo.com"
+          />
+        </div>
+        <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" class="mt-1 text-[11px] text-red-500 font-medium">
+          <small *ngIf="loginForm.get('email')?.errors?.['required']">El correo es obligatorio.</small>
+          <small *ngIf="loginForm.get('email')?.errors?.['email']">Ingrese un correo válido.</small>
+        </div>
+      </div>
+
+      <!-- Campo Contraseña -->
+      <div>
+        <label for="password" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Contraseña</label>
+        <div class="relative">
+          <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+            <i class="fa-regular fa-lock text-xs"></i>
+          </span>
+          <input
+            id="password"
+            type="password"
+            formControlName="password"
+            class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-900/80 focus:border-transparent focus:bg-white transition duration-200"
+            placeholder="••••••••"
+          />
+        </div>
+        <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="mt-1 text-[11px] text-red-500 font-medium">
+          <small *ngIf="loginForm.get('password')?.errors?.['required']">La contraseña es obligatoria.</small>
+          <small *ngIf="loginForm.get('password')?.errors?.['minlength']">Debe tener al menos 4 caracteres.</small>
+        </div>
+      </div>
+
+      <!-- Alerta de Error del Servidor (Flask) -->
+      <div *ngIf="errorMensaje" class="p-3 bg-red-50 border-l-4 border-red-500 text-red-700 text-xs rounded-r-xl flex items-center gap-2">
+        <i class="fa-solid fa-triangle-exclamation text-red-500"></i>
+        <span>{{ errorMensaje }}</span>
+      </div>
+
+      <!-- Botón de Enviar -->
+      <button
+        type="submit"
+        [disabled]="loginForm.invalid || cargando"
+        class="w-full py-3 px-4 bg-slate-900 hover:bg-blue-950 text-white text-xs font-bold uppercase tracking-wider rounded-xl shadow-md hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-900 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+      >
+        <i *ngIf="cargando" class="fa-solid fa-spinner animate-spin"></i>
+        {{ cargando ? 'Verificando acceso...' : 'Iniciar Sesión' }}
+      </button>
+
+    </form>
+
+    <!-- Pie de tarjeta opcional -->
+    <div class="mt-6 text-center border-t border-slate-100 pt-4">
+      <p class="text-[10px] text-slate-400 font-medium">EmpresarioTec • Seguridad Perimetral v1.0</p>
+    </div>
+
+  </div>
+</div>
+</file>
+
+<file path="src/app/login/login.spec.ts">
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Login } from './login';
+
+describe('Login', () => {
+  let component: Login;
+  let fixture: ComponentFixture<Login>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [Login],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(Login);
+    component = fixture.componentInstance;
+    await fixture.whenStable();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+</file>
+
+<file path="src/app/login/login.ts">
+import { Component } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
+import { AuthService } from '../services/auth.service'; // Ajusta los puntos según la ubicación de tu carpeta services
+import { LoginResponse } from '../models/intrusion.model';
+
+@Component({
+  selector: 'app-login',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
+  templateUrl: './login.html',
+  styleUrls: ['./login.css']
+})
+export class LoginComponent {
+  loginForm: FormGroup;
+  errorMensaje: string = '';
+  cargando: boolean = false;
+
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private router: Router
+  ) {
+    this.loginForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(4)]]
+    });
+  }
+
+  onSubmit(): void {
+    if (this.loginForm.invalid) {
+      this.loginForm.markAllAsTouched();
+      return;
+    }
+
+    this.cargando = true;
+    this.errorMensaje = '';
+
+    this.authService.login(this.loginForm.value).subscribe({
+      next: (response: LoginResponse) => {
+        this.cargando = false;
+        this.router.navigate(['/dashboard']);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.cargando = false;
+        // Tipado seguro para capturar el error del backend Flask
+        const errorData = err.error as { error?: string };
+        this.errorMensaje = errorData?.error || 'Ocurrió un error al iniciar sesión.';
+      }
+    });
+  }
+}
+</file>
+
+<file path="src/app/logs/logs.css">
+
+</file>
+
+<file path="src/app/logs/logs.spec.ts">
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Logs } from './logs';
+import { IntrusionService } from '../services/intrusion.service';
+import { of } from 'rxjs';
+
+describe('Logs', () => {
+  let component: Logs;
+  let fixture: ComponentFixture<Logs>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [Logs],
+      providers: [{
+        provide: IntrusionService,
+        useValue: {
+          obtenerHistorialAlertas: () => of([]),
+          obtenerHistorialMonitoreo: () => of([])
+        }
+      }],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(Logs);
+    component = fixture.componentInstance;
+    await fixture.whenStable();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+</file>
+
+<file path="src/app/logs/logs.ts">
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { HeaderService } from '../services/header.service';
+import { IntrusionService } from '../services/intrusion.service';
+import { AlertaCritica, MonitoreoGeneral } from '../models/intrusion.model';
+import { forkJoin } from 'rxjs';
+
+interface SystemLog {
+  id: string;
+  timestamp: string;
+  nivel: 'WARNING' | 'ERROR' | 'SUCCESS';
+  modulo: string;
+  mensaje: string;
+}
+
+@Component({
+  selector: 'app-logs',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './logs.html',
+  styleUrls: ['./logs.css']
+})
+export class Logs implements OnInit {
+  cargando = false;
+  filtroNivel = 'TODOS';
+  error = '';
+  logs: SystemLog[] = [];
+
+  constructor(
+    private headerService: HeaderService,
+    private intrusionService: IntrusionService,
+    private cdr: ChangeDetectorRef
+  ) {}
+
+  ngOnInit(): void {
+    this.headerService.cambiarHeader('Logs del Sistema', 'Depuración y registros de actividad serial');
+    this.cargarLogs();
+  }
+
+  cargarLogs(): void {
+    this.cargando = true;
+    this.error = '';
+
+    forkJoin({
+      alertas: this.intrusionService.obtenerHistorialAlertas(),
+      monitoreo: this.intrusionService.obtenerHistorialMonitoreo()
+    }).subscribe({
+      next: ({ alertas, monitoreo }) => {
+        this.logs = this.crearLogs(alertas, monitoreo);
+        this.cargando = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error al cargar historial de actividad:', err);
+        this.error = 'No se pudieron cargar los registros. Verifica la conexión con la API.';
+        this.cargando = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  private crearLogs(alertas: AlertaCritica[], monitoreo: MonitoreoGeneral[]): SystemLog[] {
+    const logsAlertas = alertas.map((alerta): SystemLog => ({
+      id: `alerta-${alerta.id}`,
+      timestamp: alerta.fecha_hora,
+      nivel: Number(alerta.codigo) >= 3 ? 'ERROR' : 'WARNING',
+      modulo: alerta.dispositivos?.nombre || `Dispositivo #${alerta.dispositivo_id}`,
+      mensaje: alerta.mensaje
+    }));
+
+    const logsMonitoreo = monitoreo.map((evento): SystemLog => ({
+      id: `monitoreo-${evento.id}`,
+      timestamp: evento.fecha_hora,
+      nivel: 'SUCCESS',
+      modulo: evento.dispositivos?.nombre || `Dispositivo #${evento.dispositivo_id}`,
+      mensaje: evento.mensaje
+    }));
+
+    return [...logsAlertas, ...logsMonitoreo].sort(
+      (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    );
+  }
+
+  filtrar(nivel: string): void {
+    this.filtroNivel = nivel;
+  }
+
+  get logsFiltrados(): SystemLog[] {
+    if (this.filtroNivel === 'TODOS') {
+      return this.logs;
+    }
+    return this.logs.filter(log => log.nivel === this.filtroNivel);
+  }
+
+  limpiarLogs(): void {
+    this.logs = [];
+  }
+}
+</file>
+
+<file path="src/app/models/intrusion.model.ts">
+// Define el estado actual del perímetro para la vista en tiempo real
+export interface IntrusionState {
+  estado: number;
+  intrusiones_totales: number;
+  dispositivo: string;
+  timestamp?: string | Date;
+  mensaje?: string;
+}
+
+// Códigos de estado del sistema y conexión
+export enum EstadoPerimetro {
+  SIN_CONEXION = 0,
+  ZONA_SEGURA = 1,
+  ADVERTENCIA = 2,
+  ALERTA_CRITICA = 3,
+  PUERTA_FORZADA = 4,
+  IMPACTO = 5
+}
+
+// Modelo correspondiente a la tabla historial_alertas_criticas
+export interface AlertaCritica {
+  id: number;
+  dispositivo_id: number;
+  codigo: number;
+  mensaje: string;
+  intrusiones: number;
+  duracion_segundos: number;
+  fecha_hora: string;
+  dispositivos?: {
+    nombre?: string;
+    ubicacion?: string;
+  };
+}
+
+// Modelo correspondiente a la tabla historial_monitoreo_general
+export interface MonitoreoGeneral {
+  id: number;
+  dispositivo_id: number;
+  codigo: number;
+  mensaje: string;
+  fecha_hora: string;
+  dispositivos?: {
+    nombre?: string;
+    ubicacion?: string;
+  };
+}
+
+export interface Dispositivo {
+  id: number;
+  nombre: string;
+  ubicacion?: string;
+  puerto_com?: string;
+  activo?: boolean;
+  fecha_registro?: string;
+}
+
+// Modelo correspondiente a la tabla roles
+export interface Rol {
+  id?: number;
+  nombre: string;
+}
+
+// Modelo correspondiente a la tabla usuarios
+export interface Usuario {
+  id?: number;
+  nombre: string;
+  email: string;
+  password?: string;
+  password_hash?: string;
+  rol_id: number;
+  activo?: boolean;
+  fecha_registro?: string;
+  roles?: Rol;
+}
+
+// ==================== MODELOS DE AUTENTICACIÓN (LOGIN) ====================
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface SesionUsuario {
+  id: number;
+  nombre: string;
+  email: string;
+  rol: string;
+  permisos?: string[];
+}
+
+export interface LoginResponse {
+  mensaje: string;
+  usuario: SesionUsuario;
+}
+</file>
+
+<file path="src/app/services/auth.service.ts">
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, tap } from 'rxjs';
+import { LoginRequest, LoginResponse, SesionUsuario } from '../models/intrusion.model';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AuthService {
+  // URL base de tu API Flask
+  private apiUrl = 'http://127.0.0.1:5000/api';
+
+  constructor(private http: HttpClient) {}
+
+  /**
+   * Envía la solicitud de inicio de sesión utilizando la interfaz LoginRequest
+   * y recibe una respuesta del tipo LoginResponse.
+   */
+  login(credentials: LoginRequest): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.apiUrl}/login`, credentials).pipe(
+      tap(response => {
+        if (response && response.usuario) {
+          // Guardamos los datos de SesionUsuario en localStorage
+          localStorage.setItem('usuario', JSON.stringify(response.usuario));
+        }
+      })
+    );
+  }
+
+  /**
+   * Cierra la sesión activa removiendo los datos del almacenamiento local.
+   */
+  logout(): void {
+    localStorage.removeItem('usuario');
+  }
+
+  /**
+   * Verifica si el usuario cuenta con una sesión activa.
+   */
+  estaAutenticado(): boolean {
+    return !!localStorage.getItem('usuario');
+  }
+
+  /**
+   * Obtiene la sesión actual tipada con la interfaz SesionUsuario.
+   */
+  obtenerUsuarioActual(): SesionUsuario | null {
+    const usuarioStr = localStorage.getItem('usuario');
+    return usuarioStr ? JSON.parse(usuarioStr) as SesionUsuario : null;
+  }
+}
+</file>
+
+<file path="src/app/services/header.service.ts">
+import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class HeaderService {
+  private headerState = new BehaviorSubject<{ titulo: string; subtitulo: string }>({
+    titulo: 'Panel De Control',
+    subtitulo: 'Perímetro de Seguridad'
+  });
+
+  header$ = this.headerState.asObservable();
+
+  cambiarHeader(titulo: string, subtitulo: string): void {
+    this.headerState.next({ titulo, subtitulo });
+  }
+}
+</file>
+
+<file path="src/app/services/intrusion.service.ts">
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, map } from 'rxjs';
+import {
+  AlertaCritica,
+  Dispositivo,
+  IntrusionState,
+  EstadoPerimetro,
+  MonitoreoGeneral,
+  Usuario,
+  Rol
+} from '../models/intrusion.model';
+
+export interface ApiResponse {
+  codigo: number;
+  mensaje: string;
+  intrusiones: string | number;
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class IntrusionService {
+  private apiUrl = 'http://127.0.0.1:5000/api';
+
+  constructor(private http: HttpClient) {}
+
+  obtenerEstado(): Observable<IntrusionState> {
+    return this.http.get<ApiResponse>(`${this.apiUrl}/estado`).pipe(
+      map(res => {
+        const codigoNum = Number(res.codigo);
+        const estadoValido = isNaN(codigoNum) ? EstadoPerimetro.SIN_CONEXION : codigoNum;
+
+        return {
+          estado: estadoValido,
+          intrusiones_totales: Number(res.intrusiones) || 0,
+          dispositivo: 'Dispositivo de perímetro',
+          mensaje: res.mensaje
+        };
+      })
+    );
+  }
+
+  obtenerHistorialMonitoreo(): Observable<MonitoreoGeneral[]> {
+    return this.http.get<MonitoreoGeneral[]>(`${this.apiUrl}/historial/monitoreo`);
+  }
+
+  obtenerHistorialAlertas(): Observable<AlertaCritica[]> {
+    return this.http.get<AlertaCritica[]>(`${this.apiUrl}/historial/alertas`);
+  }
+
+  obtenerDispositivos(): Observable<Dispositivo[]> {
+    return this.http.get<Dispositivo[]>(`${this.apiUrl}/dispositivos`);
+  }
+
+  // ==================== MÉTODOS DE USUARIOS ====================
+
+  obtenerUsuarios(): Observable<Usuario[]> {
+    return this.http.get<any>(`${this.apiUrl}/usuarios`).pipe(
+      map(response => {
+        // Asegura que devuelva un arreglo ya sea que la API devuelva la lista directa o envuelta en .data
+        return Array.isArray(response) ? response : (response?.data || []);
+      })
+    );
+  }
+
+  crearUsuario(usuario: Usuario): Observable<any> {
+    return this.http.post(`${this.apiUrl}/usuarios`, usuario);
+  }
+
+  actualizarUsuario(id: number, usuario: Usuario): Observable<any> {
+    return this.http.put(`${this.apiUrl}/usuarios/${id}`, usuario);
+  }
+
+  eliminarUsuario(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/usuarios/${id}`);
+  }
+
+  // ==================== MÉTODOS DE ROLES ====================
+
+  obtenerRoles(): Observable<Rol[]> {
+    return this.http.get<any>(`${this.apiUrl}/roles`).pipe(
+      map(response => {
+        return Array.isArray(response) ? response : (response?.data || []);
+      })
+    );
+  }
+}
+</file>
+
+<file path="src/app/sidebar/sidebar.css">
+
+</file>
+
+<file path="src/app/sidebar/sidebar.spec.ts">
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { SidebarComponent } from './sidebar';
+
+describe('Sidebar', () => {
+  let component: SidebarComponent;
+  let fixture: ComponentFixture<SidebarComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [SidebarComponent],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(SidebarComponent);
+    component = fixture.componentInstance;
+    await fixture.whenStable();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+</file>
+
+<file path="src/app/users/users.css">
+
+</file>
+
+<file path="src/app/users/users.spec.ts">
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
+import { UsersComponent } from './users';
+import { IntrusionService } from '../services/intrusion.service';
+import { Usuario } from '../models/intrusion.model';
+
+describe('UsersComponent', () => {
+  let component: UsersComponent;
+  let fixture: ComponentFixture<UsersComponent>;
+  let usuariosEliminados: number[];
+  let usuariosActualizados: number[];
+  const usuario: Usuario = {
+    id: 7,
+    nombre: 'Ana Pérez',
+    email: 'ana@example.com',
+    rol_id: 1,
+    activo: true,
+  };
+
+  beforeEach(async () => {
+    usuariosEliminados = [];
+    usuariosActualizados = [];
+    await TestBed.configureTestingModule({
+      imports: [UsersComponent],
+      providers: [{
+        provide: IntrusionService,
+        useValue: {
+          obtenerUsuarios: () => of([usuario]),
+          obtenerRoles: () => of([]),
+          eliminarUsuario: (id: number) => {
+            usuariosEliminados.push(id);
+            return of({});
+          },
+          actualizarUsuario: (id: number) => {
+            usuariosActualizados.push(id);
+            return of({});
+          },
+        },
+      }],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(UsersComponent);
+    component = fixture.componentInstance;
+    await fixture.whenStable();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+
+  it('does not delete until the selected user name is confirmed', () => {
+    component.abrirModalEliminar(usuario);
+    component.nombreConfirmacionEliminacion = 'Ana';
+    component.confirmarEliminacion();
+
+    expect(usuariosEliminados).toEqual([]);
+    expect(component.usuarioAEliminar).toBe(usuario);
+  });
+
+  it('deletes only after the exact name is entered, ignoring case and surrounding spaces', () => {
+    component.abrirModalEliminar(usuario);
+    component.nombreConfirmacionEliminacion = '  ana pérez  ';
+    component.confirmarEliminacion();
+
+    expect(usuariosEliminados).toEqual([7]);
+    expect(component.usuarioAEliminar).toBeNull();
+  });
+
+  it('asks for confirmation before saving user edits', () => {
+    component.editarUsuarioModal(usuario);
+    component.guardarUsuario();
+
+    expect(component.confirmacionEdicion).toBe(true);
+    expect(usuariosActualizados).toEqual([]);
+
+    component.confirmarAccion();
+
+    expect(usuariosActualizados).toEqual([7]);
+    expect(component.confirmacionEdicion).toBe(false);
+  });
+});
+</file>
+
+<file path="src/app/app.css">
+
+</file>
+
+<file path="src/app/app.spec.ts">
+import { TestBed } from '@angular/core/testing';
+import { App } from './app';
+
+describe('App', () => {
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [App],
+    })
+      .compileComponents();
+  });
+
+  it('should create the app', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    expect(app).toBeTruthy();
+  });
+
+  it('should render title', async () => {
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, aduinoproyect');
+  });
+});
+</file>
+
+<file path=".editorconfig">
+# Editor configuration, see https://editorconfig.org
+root = true
+
+[*]
+charset = utf-8
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.ts]
+quote_type = single
+ij_typescript_use_double_quotes = false
+
+[*.md]
+max_line_length = off
+trim_trailing_whitespace = false
+</file>
+
+<file path=".gitignore">
+# See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
+
+# Compiled output
+/dist
+/tmp
+/out-tsc
+/bazel-out
+
+# Node
+/node_modules
+npm-debug.log
+yarn-error.log
+
+# IDEs and editors
+.idea/
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/mcp.json
+.history/*
+
+# Miscellaneous
+/.angular/cache
+.sass-cache/
+/connect.lock
+/coverage
+/libpeerconnection.log
+testem.log
+/typings
+__screenshots__/
+
+# System files
+.DS_Store
+Thumbs.db
+</file>
+
+<file path=".postcssrc.json">
+{
+  "plugins": {
+    "@tailwindcss/postcss": {}
+  }
+}
+</file>
+
+<file path=".prettierrc">
+{
+  "printWidth": 100,
+  "singleQuote": true,
+  "overrides": [
+    {
+      "files": "*.html",
+      "options": {
+        "parser": "angular"
+      }
+    }
+  ]
+}
+</file>
+
+<file path="README.md">
+# Aduinoproyect
+
+This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.1.8.
+
+## Development server
+
+To start a local development server, run:
+
+```bash
+ng serve
+```
+
+Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+
+## Code scaffolding
+
+Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+
+```bash
+ng generate component component-name
+```
+
+For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+
+```bash
+ng generate --help
+```
+
+## Building
+
+To build the project run:
+
+```bash
+ng build
+```
+
+This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+
+## Running unit tests
+
+To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+
+```bash
+ng test
+```
+
+## Running end-to-end tests
+
+For end-to-end (e2e) testing, run:
+
+```bash
+ng e2e
+```
+
+Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+
+## Additional Resources
+
+For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+</file>
+
+<file path="tsconfig.app.json">
+/* To learn more about Typescript configuration file: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html. */
+/* To learn more about Angular compiler options: https://angular.dev/reference/configs/angular-compiler-options. */
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": []
+  },
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "src/**/*.spec.ts"
+  ]
+}
+</file>
+
+<file path="tsconfig.json">
+/* To learn more about Typescript configuration file: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html. */
+/* To learn more about Angular compiler options: https://angular.dev/reference/configs/angular-compiler-options. */
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "ES2022",
+    "module": "preserve"
+  },
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true
+  },
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.spec.json"
+    }
+  ]
+}
+</file>
+
+<file path="tsconfig.spec.json">
+/* To learn more about Typescript configuration file: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html. */
+/* To learn more about Angular compiler options: https://angular.dev/reference/configs/angular-compiler-options. */
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": [
+      "vitest/globals"
+    ]
+  },
+  "include": [
+    "src/**/*.d.ts",
+    "src/**/*.spec.ts"
+  ]
+}
+</file>
+
+<file path="src/app/dashboard/dashboard.html">
+<main class="flex-1 p-6 md:p-10 space-y-6 overflow-y-auto mt-5 bg-slate-50/40">
+
+  <!-- TARJETAS DE INDICADORES PRINCIPALES -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+    <!-- Tarjeta de Estado Actual -->
+    <div
+      class="bg-white rounded-xl p-5 shadow-xs border border-slate-200/70 flex flex-col justify-between transition-all"
+      [ngClass]="getClaseEstado(estadoActual.estado)">
+      <div>
+        <h3 class="text-xs font-medium text-slate-400 uppercase tracking-wider mb-2.5">
+          Estado del Perímetro
+        </h3>
+        <div class="flex items-center gap-2.5 my-1.5">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-slate-900 text-slate-100 shadow-2xs">
+              <span
+                class="w-1.5 h-1.5 rounded-full"
+                [ngClass]="{
+                  'bg-emerald-400 animate-pulse': estadoActual.estado !== 0,
+                  'bg-rose-500': estadoActual.estado === 0
+                }"></span>
+              {{ estadoActual.estado === 0 ? 'API Desconectada' : estadoActual.dispositivo }}
+            </span>
+        </div>
+      </div>
+
+      <!-- Descripción contextual del estado -->
+      <div class="mt-3 pt-2.5 border-t border-slate-100">
+        <p class="text-xs font-medium text-emerald-600" *ngIf="estadoActual.estado === 1">
+          Perímetro despejado y seguro.
+        </p>
+        <p class="text-xs font-medium text-amber-600" *ngIf="estadoActual.estado === 2">
+          Presencia detectada. Evaluando umbral...
+        </p>
+        <p class="text-xs font-semibold text-rose-600 animate-pulse" *ngIf="estadoActual.estado === 3">
+          ¡INTRUSO EN LA ZONA! Torreta y buzzer activos.
+        </p>
+        <p class="text-xs font-semibold text-rose-600 animate-pulse" *ngIf="estadoActual.estado === 4">
+          ¡Puerta principal forzada o abierta!
+        </p>
+        <p class="text-xs font-semibold text-rose-600 animate-pulse" *ngIf="estadoActual.estado === 5">
+          ¡Impacto o vibración detectada!
+        </p>
+        <p class="text-xs font-medium text-slate-400" *ngIf="estadoActual.estado === 0">
+          No se puede establecer conexión con la API del sistema.
+        </p>
+      </div>
+    </div>
+
+    <!-- Tarjeta de Contador -->
+    <div class="bg-white rounded-xl p-5 shadow-xs border border-slate-200/70 flex flex-col justify-between">
+      <div>
+        <h3 class="text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
+          Intrusiones Registradas
+        </h3>
+        <div class="text-3xl font-bold text-slate-900 tracking-tight">
+          {{ estadoActual.intrusiones_totales }}
+        </div>
+      </div>
+      <div class="mt-3 pt-2.5 border-t border-slate-100">
+        <p class="text-xs text-slate-400 font-normal">
+          Eventos detectados desde el inicio del sistema
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TABLA DE HISTORIAL DE ALERTAS (DESDE BASE DE DATOS) -->
+  <div class="bg-white rounded-xl shadow-xs border border-slate-200/70 overflow-hidden">
+    <div class="p-4 sm:p-5 border-b border-slate-100">
+      <h2 class="text-sm font-semibold text-slate-900">
+        Historial de Alertas Críticas <span class="text-xs text-slate-400 font-normal">(Supabase)</span>
+      </h2>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs text-slate-600">
+        <thead class="bg-slate-50/50 text-[11px] font-medium uppercase tracking-wider text-slate-400 border-b border-slate-100">
+          <tr>
+            <th scope="col" class="px-5 py-3">Fecha / Hora</th>
+            <th scope="col" class="px-5 py-3">Estado</th>
+            <th scope="col" class="px-5 py-3">Mensaje</th>
+            <th scope="col" class="px-5 py-3 text-center">Duración</th>
+            <th scope="col" class="px-5 py-3 text-right">Intrusiones</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr *ngFor="let alerta of historialAlertasBD" class="hover:bg-slate-50/50 transition-colors">
+            <td class="px-5 py-3 font-mono text-slate-500 whitespace-nowrap">
+              {{ alerta.fecha_hora | date:'medium' }}
+            </td>
+            <td class="px-5 py-3 whitespace-nowrap">
+              <span
+                class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium"
+                [ngClass]="getClaseEstado(alerta.codigo)">
+                {{ getNombreEstado(alerta.codigo) }}
+              </span>
+            </td>
+            <td class="px-5 py-3 font-medium text-slate-800">
+              {{ alerta.mensaje }}
+            </td>
+            <td class="px-5 py-3 font-mono text-center text-slate-500 whitespace-nowrap">
+              {{ alerta.duracion_segundos }}s
+            </td>
+            <td class="px-5 py-3 font-semibold text-slate-900 text-right whitespace-nowrap">
+              {{ alerta.intrusiones }}
+            </td>
+          </tr>
+
+          <!-- Fila cuando no hay datos -->
+          <tr *ngIf="historialAlertasBD.length === 0">
+            <td colspan="5" class="px-5 py-12 text-center text-slate-400">
+              <div class="flex flex-col items-center justify-center space-y-2">
+                <i class="fa-solid fa-triangle-exclamation text-lg text-slate-300"></i>
+                <p class="text-xs">No hay alertas registradas en la base de datos.</p>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+</file>
+
+<file path="src/app/dashboard/dashboard.ts">
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { IntrusionService } from '../services/intrusion.service';
+import { IntrusionState, EstadoPerimetro, AlertaCritica, MonitoreoGeneral } from '../models/intrusion.model';
+import { Subscription, interval, of } from 'rxjs';
+import { switchMap, startWith, catchError } from 'rxjs/operators';
+
+@Component({
+  selector: 'app-dashboard',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './dashboard.html',
+  styleUrl: './dashboard.css'
+})
+export class DashboardComponent implements OnInit, OnDestroy {
+
+  estadoActual: IntrusionState = {
+    estado: EstadoPerimetro.SIN_CONEXION,
+    intrusiones_totales: 0,
+    dispositivo: 'Sensor FC-51 (Pin 2)'
+  };
+
+  historialEventos: IntrusionState[] = [];
+  historialAlertasBD: AlertaCritica[] = [];
+  historialMonitoreoBD: MonitoreoGeneral[] = [];
+
+  private subscripcionTimer?: Subscription;
+  private ultimoEstadoRegistrado: any = null;
+  private nombreDispositivo = 'Dispositivo de perímetro';
+
+  constructor(
+    private intrusionService: IntrusionService,
+    private cdr: ChangeDetectorRef
+  ) {}
+
+  ngOnInit(): void {
+    this.cargarDispositivo();
+    this.iniciarMonitoreoTiempoReal();
+    this.cargarHistorialesBD();
+  }
+
+  ngOnDestroy(): void {
+    this.subscripcionTimer?.unsubscribe();
+  }
+
+  private cargarDispositivo(): void {
+    this.intrusionService.obtenerDispositivos().subscribe({
+      next: (dispositivos) => {
+        const dispositivo = dispositivos.find(item => item.id === 1) ?? dispositivos[0];
+        if (dispositivo) {
+          this.nombreDispositivo = dispositivo.nombre;
+          this.estadoActual = {
+            ...this.estadoActual,
+            dispositivo: this.nombreDispositivo
+          };
+        }
+      },
+      error: (err) => console.error('Error al cargar el dispositivo del perímetro:', err)
+    });
+  }
+
+  private iniciarMonitoreoTiempoReal(): void {
+    this.subscripcionTimer = interval(1000)
+      .pipe(
+        startWith(0),
+        switchMap(() =>
+          this.intrusionService.obtenerEstado().pipe(
+            catchError((err) => {
+              console.warn('API Flask desconectada', err);
+              return of({
+                estado: EstadoPerimetro.SIN_CONEXION,
+                intrusiones_totales: this.estadoActual.intrusiones_totales,
+                dispositivo: this.nombreDispositivo,
+                mensaje: 'Servidor desconectado'
+              });
+            })
+          )
+        )
+      )
+      .subscribe({
+        next: (data) => {
+          this.estadoActual = { ...data, dispositivo: this.nombreDispositivo };
+          this.verificarYAgregarHistorialLocal(data);
+          this.cdr.detectChanges();
+        }
+      });
+  }
+
+  cargarHistorialesBD(): void {
+    this.intrusionService.obtenerHistorialAlertas().subscribe({
+      next: (data) => this.historialAlertasBD = data,
+      error: (err) => console.error('Error al cargar alertas:', err)
+    });
+
+    this.intrusionService.obtenerHistorialMonitoreo().subscribe({
+      next: (data) => this.historialMonitoreoBD = data,
+      error: (err) => console.error('Error al cargar monitoreo:', err)
+    });
+  }
+
+  private verificarYAgregarHistorialLocal(nuevoEstado: IntrusionState): void {
+    if (nuevoEstado.estado !== EstadoPerimetro.SIN_CONEXION && nuevoEstado.estado !== this.ultimoEstadoRegistrado) {
+      this.ultimoEstadoRegistrado = nuevoEstado.estado;
+
+      this.historialEventos.unshift({
+        ...nuevoEstado,
+        timestamp: new Date()
+      });
+
+      if (this.historialEventos.length > 10) {
+        this.historialEventos.pop();
+      }
+    }
+  }
+
+  getNombreEstado(codigo: number): string {
+    switch (codigo) {
+      case EstadoPerimetro.ZONA_SEGURA: return 'ZONA SEGURA';
+      case EstadoPerimetro.ADVERTENCIA: return 'PRESENCIA DETECTADA';
+      case EstadoPerimetro.ALERTA_CRITICA: return '¡INTRUSO DETECTADO!';
+      case EstadoPerimetro.PUERTA_FORZADA: return '¡PUERTA FORZADA!';
+      case EstadoPerimetro.IMPACTO: return '¡IMPACTO DETECTADO!';
+      case EstadoPerimetro.SIN_CONEXION: return 'SIN CONEXIÓN';
+      default: return 'DESCONOCIDO';
+    }
+  }
+
+  getClaseEstado(codigo: number): string {
+    switch (codigo) {
+      case EstadoPerimetro.ZONA_SEGURA: return 'border-emerald-500/30';
+      case EstadoPerimetro.ADVERTENCIA: return 'border-amber-500/30';
+      case EstadoPerimetro.ALERTA_CRITICA: return 'border-rose-500/50 bg-rose-50/10';
+      case EstadoPerimetro.PUERTA_FORZADA: return 'border-rose-500/50 bg-rose-50/10';
+      case EstadoPerimetro.IMPACTO: return 'border-rose-500/50 bg-rose-50/10';
+      case EstadoPerimetro.SIN_CONEXION: return 'border-slate-300 bg-slate-100';
+      default: return '';
+    }
+  }
+}
+</file>
+
+<file path="src/app/header/header.html">
+<header class="flex items-center px-1 py-4 pt-1 justify-between border-b border-slate-200/80">
+  <div>
+    <!-- Título dinámico -->
+    <h1 class="text-sm font-semibold tracking-tight text-slate-900">
+      {{ tituloPagina }}
+    </h1>
+    <!-- Subtítulo dinámico -->
+    <p class="text-xs text-slate-500 mt-0.5">
+      {{ subtituloPagina }}
+    </p>
+  </div>
+
+  <!-- Contenedor derecho: Fecha/Hora + Botón de Cerrar Sesión -->
+  <div class="flex items-center gap-5">
+    <!-- Fecha y Hora -->
+    <div class="flex flex-col items-end">
+      <div class="text-xs font-semibold text-slate-800 tracking-wide">
+        <!-- Muestra la hora -->
+        {{ currentTime | date:'HH:mm:ss' }}
+      </div>
+      <div class="text-[11px] text-slate-400 capitalize mt-0.5">
+        <!-- Muestra la fecha -->
+        {{ currentTime | date:'fullDate' }}
+      </div>
+    </div>
+
+    <!-- Separador vertical sutil -->
+    <div class="h-6 w-px bg-slate-200"></div>
+
+    <!-- Botón de Cerrar Sesión Minimalista -->
+    <button
+      (click)="cerrarSesion()"
+      class="flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all group"
+      title="Cerrar Sesión"
+    >
+      <i class="fa-solid fa-arrow-right-from-bracket text-xs transition-transform group-hover:-translate-x-0.5"></i>
+    </button>
+  </div>
+</header>
+</file>
+
+<file path="src/app/logs/logs.html">
+<main class="flex-1 p-6 md:p-10 space-y-6 overflow-y-auto mt-5 bg-slate-50/40">
+  <div *ngIf="error" role="alert" class="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-xs text-rose-700">
+    {{ error }}
+  </div>
+  <div class="space-y-6">
+
+    <!-- BARRA DE ACCIONES Y FILTROS -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200/70 shadow-xs">
+
+      <!-- Filtros por tipo de log -->
+      <div class="flex items-center gap-1.5 flex-wrap">
+        <span class="text-[11px] font-medium text-slate-400 uppercase tracking-wider mr-1.5">Filtrar:</span>
+
+        <button
+          (click)="filtrar('TODOS')"
+          [class.bg-slate-900]="filtroNivel === 'TODOS'"
+          [class.text-white]="filtroNivel === 'TODOS'"
+          [class.bg-slate-100]="filtroNivel !== 'TODOS'"
+          [class.text-slate-600]="filtroNivel !== 'TODOS'"
+          class="px-3 py-1.5 rounded-lg text-xs font-medium transition-all">
+          Todos
+        </button>
+
+        <button
+          (click)="filtrar('SUCCESS')"
+          [class.bg-emerald-600]="filtroNivel === 'SUCCESS'"
+          [class.text-white]="filtroNivel === 'SUCCESS'"
+          [class.bg-emerald-50]="filtroNivel !== 'SUCCESS'"
+          [class.text-emerald-700]="filtroNivel !== 'SUCCESS'"
+          class="px-3 py-1.5 rounded-lg text-xs font-medium transition-all">
+          Success
+        </button>
+
+        <button
+          (click)="filtrar('WARNING')"
+          [class.bg-amber-500]="filtroNivel === 'WARNING'"
+          [class.text-white]="filtroNivel === 'WARNING'"
+          [class.bg-amber-50]="filtroNivel !== 'WARNING'"
+          [class.text-amber-700]="filtroNivel !== 'WARNING'"
+          class="px-3 py-1.5 rounded-lg text-xs font-medium transition-all">
+          Warning
+        </button>
+
+        <button
+          (click)="filtrar('ERROR')"
+          [class.bg-rose-600]="filtroNivel === 'ERROR'"
+          [class.text-white]="filtroNivel === 'ERROR'"
+          [class.bg-rose-50]="filtroNivel !== 'ERROR'"
+          [class.text-rose-700]="filtroNivel !== 'ERROR'"
+          class="px-3 py-1.5 rounded-lg text-xs font-medium transition-all">
+          Error
+        </button>
+      </div>
+
+      <!-- Botones de Acción (Refrescar) -->
+      <div class="flex items-center gap-2">
+        <button
+          (click)="cargarLogs()"
+          class="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs font-medium transition-colors"
+          title="Actualizar registros">
+          <i class="fa-solid fa-rotate-right text-[11px]" [class.animate-spin]="cargando"></i>
+          <span>Actualizar</span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- TABLA DE LOGS -->
+    <div class="bg-white rounded-xl border border-slate-200/70 shadow-xs overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead>
+            <tr class="bg-slate-50/50 border-b border-slate-100 text-slate-400 text-[11px] font-medium uppercase tracking-wider">
+              <th class="py-3 px-5">Marca de Tiempo</th>
+              <th class="py-3 px-5">Nivel</th>
+              <th class="py-3 px-5">Módulo</th>
+              <th class="py-3 px-5">Descripción del Registro</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-slate-600">
+
+            @for (log of logsFiltrados; track log.id) {
+              <tr class="hover:bg-slate-50/50 transition-colors">
+                <td class="py-3 px-5 font-mono text-slate-400 text-[11px] whitespace-nowrap">{{ log.timestamp }}</td>
+                <td class="py-3 px-5 whitespace-nowrap">
+                  <span [ngClass]="{
+                    'bg-emerald-50 text-emerald-700 border-emerald-200/60': log.nivel === 'SUCCESS',
+                    'bg-amber-50 text-amber-700 border-amber-200/60': log.nivel === 'WARNING',
+                    'bg-rose-50 text-rose-700 border-rose-200/60': log.nivel === 'ERROR'
+                  }" class="px-2 py-0.5 rounded text-[10px] font-semibold border tracking-wide uppercase">
+                    {{ log.nivel }}
+                  </span>
+                </td>
+                <td class="py-3 px-5 font-medium text-slate-800 whitespace-nowrap">{{ log.modulo }}</td>
+                <td class="py-3 px-5 text-slate-600">{{ log.mensaje }}</td>
+              </tr>
+            }
+
+            @if (cargando) {
+              <tr>
+                <td colspan="4" class="text-center py-12 text-slate-400">
+                  Cargando registros desde la API...
+                </td>
+              </tr>
+            }
+
+            @if (!cargando && logsFiltrados.length === 0) {
+              <tr>
+                <td colspan="4" class="text-center py-12 text-slate-400">
+                  <div class="flex flex-col items-center justify-center space-y-2">
+                    <i class="fa-regular fa-folder-open text-xl text-slate-300"></i>
+                    <p class="text-xs">No se encontraron registros para el filtro seleccionado.</p>
+                  </div>
+                </td>
+              </tr>
+            }
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</main>
+</file>
+
+<file path="src/app/sidebar/sidebar.html">
+<aside class="w-64 bg-slate-900 text-slate-300 flex flex-col justify-between h-screen sticky top-0 border-r border-slate-800 shrink-0 select-none">
+  <div>
+    <!-- LOGO / BRANDING -->
+    <div class="p-5 border-b border-slate-800/80 flex items-center gap-3">
+      <div class="w-7 h-7 rounded-lg bg-slate-800 border border-slate-700/60 flex items-center justify-center text-white font-semibold text-xs">
+        E
+      </div>
+      <div>
+        <h2 class="text-xs font-semibold text-white tracking-wide">EmpresarioTec</h2>
+        <p class="text-[10px] text-slate-400">Seguridad Perimetral</p>
+      </div>
+    </div>
+
+    <!-- NAVEGACIÓN CON @for -->
+    <nav class="p-3 space-y-5 overflow-y-auto max-h-[calc(100vh-140px)]">
+
+      <!-- SECCIÓN: MENÚ PRINCIPAL -->
+      <div class="space-y-1">
+        <p class="px-3 py-1 text-[10px] font-semibold tracking-wider text-slate-500 uppercase">Menú Principal</p>
+
+        @for (item of menuItems; track item.ruta) {
+          @if (item.categoria === 'Menú Principal') {
+            <a [routerLink]="item.ruta"
+               (click)="seleccionarSeccion(item.clave)"
+               routerLinkActive="text-white bg-slate-800/80 font-medium"
+               class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-normal text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 transition-colors">
+              <i [class]="item.icono + ' text-[11px] w-4 text-center text-slate-400'"></i>
+              {{ item.titulo }}
+            </a>
+          }
+        }
+      </div>
+
+      <!-- SECCIÓN: USUARIOS -->
+      <div class="space-y-1">
+        <p class="px-3 py-1 text-[10px] font-semibold tracking-wider text-slate-500 uppercase">Usuarios</p>
+
+        @for (item of menuItems; track item.ruta) {
+          @if (item.categoria === 'Usuarios') {
+            <a [routerLink]="item.ruta"
+               (click)="seleccionarSeccion(item.clave)"
+               routerLinkActive="text-white bg-slate-800/80 font-medium"
+               class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-normal text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 transition-colors">
+              <i [class]="item.icono + ' text-[11px] w-4 text-center text-slate-400'"></i>
+              {{ item.titulo }}
+            </a>
+          }
+        }
+      </div>
+
+      <!-- SECCIÓN: LOGS -->
+      <div class="space-y-1">
+        <p class="px-3 py-1 text-[10px] font-semibold tracking-wider text-slate-500 uppercase">Logs</p>
+
+        @for (item of menuItems; track item.ruta) {
+          @if (item.categoria === 'Logs') {
+            <a [routerLink]="item.ruta"
+               (click)="seleccionarSeccion(item.clave)"
+               routerLinkActive="text-white bg-slate-800/80 font-medium"
+               class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-normal text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 transition-colors">
+              <i [class]="item.icono + ' text-[11px] w-4 text-center text-slate-400'"></i>
+              {{ item.titulo }}
+            </a>
+          }
+        }
+      </div>
+
+    </nav>
+  </div>
+
+  <!-- PIE DE LA BARRA LATERAL -->
+  <div class="px-5 py-3 border-t border-slate-800/80 bg-slate-900/50">
+    <div class="flex items-center justify-between">
+      <span class="text-[10px] text-slate-500">EmpresarioTec</span>
+      <span class="text-[10px] text-slate-600 font-mono">v1.0</span>
+    </div>
+  </div>
+</aside>
+</file>
+
+<file path="src/app/sidebar/sidebar.ts">
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { HeaderService } from '../services/header.service';
+import { AuthService } from '../services/auth.service';
+
+interface SeccionMenu {
+  titulo: string;
+  ruta: string;
+  icono: string;
+  clave: string;
+  categoria: string;
+}
+
+@Component({
+  selector: 'app-sidebar',
+  standalone: true,
+  imports: [CommonModule, RouterLink, RouterLinkActive],
+  templateUrl: './sidebar.html',
+  styleUrls: ['./sidebar.css']
+})
+export class SidebarComponent {
+
+  // Lista centralizada de elementos del menú para evitar repetir código en el HTML
+  menuItems: SeccionMenu[] = [
+    { categoria: 'Menú Principal', titulo: 'Dashboard', ruta: '/dashboard', icono: 'fa-solid fa-shield-halved text-blue-400', clave: 'dashboard' },
+    { categoria: 'Menú Principal', titulo: 'Dispositivos & Pines', ruta: '/devices', icono: 'fa-solid fa-microchip text-slate-400', clave: 'devices' },
+    { categoria: 'Usuarios', titulo: 'Gestión de Accesos', ruta: '/usuarios', icono: 'fa-solid fa-users text-slate-400', clave: 'usuarios' },
+    { categoria: 'Logs', titulo: 'Logs del Sistema', ruta: '/logs', icono: 'fa-solid fa-terminal text-slate-400', clave: 'logs' }
+  ];
+
+  constructor(
+    private headerService: HeaderService,
+    private authService: AuthService,
+    private router: Router
+  ) {}
+
+  seleccionarSeccion(seccion: string): void {
+    if (seccion === 'dashboard') {
+      this.headerService.cambiarHeader('Panel De Control', 'Perímetro de Seguridad');
+    } else if (seccion === 'usuarios') {
+      this.headerService.cambiarHeader('Gestión De Usuario', 'Administración de Accesos y Credenciales');
+    } else if (seccion === 'devices') {
+      this.headerService.cambiarHeader('Dispositivos y Pines', 'Control de Hardware y Arduino');
+    } else if (seccion === 'logs') {
+      this.headerService.cambiarHeader('Logs del Sistema', 'Depuración y registros de actividad serial');
+    }
+  }
+}
+</file>
+
+<file path="src/app/users/users.html">
+<main class="flex-1 p-6 md:p-10 space-y-6 overflow-y-auto mt-5 relative bg-slate-50/40">
+
+  <!-- ALERTA FLOTANTE (TOAST) -->
+  <div *ngIf="mensajeAlerta"
+       class="fixed top-6 right-6 z-50 flex items-center gap-2.5 px-4 py-2.5 rounded-lg shadow-md border text-xs font-medium transition-all animate-in fade-in slide-in-from-top-4 duration-300"
+       [ngClass]="tipoAlerta === 'success' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-rose-50 text-rose-800 border-rose-200'">
+    <i class="text-sm" [ngClass]="tipoAlerta === 'success' ? 'fa-solid fa-circle-check text-emerald-600' : 'fa-solid fa-circle-exclamation text-rose-600'"></i>
+    <span>{{ mensajeAlerta }}</span>
+  </div>
+
+  <!-- MODAL FLOTANTE (CREAR / EDITAR) -->
+  <div *ngIf="mostrarModal" class="fixed inset-0 z-50 h-screen w-screen flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4 overflow-y-auto">
+    <div class="bg-white rounded-xl shadow-xl border border-slate-200/60 w-full max-w-md overflow-hidden my-auto animate-in fade-in zoom-in duration-200">
+
+      <!-- Cabecera del Modal -->
+      <div class="px-5 py-3.5 border-b border-slate-100 flex justify-between items-center bg-white">
+        <h2 class="text-sm font-semibold text-slate-900">
+          {{ editando ? 'Editar Usuario' : 'Nuevo Usuario' }}
+        </h2>
+        <button (click)="cerrarModal()" class="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-slate-600 rounded-md transition-colors">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+
+      <!-- Formulario dentro del Modal -->
+      <form (ngSubmit)="guardarUsuario()" class="p-5 space-y-3.5">
+        <div>
+          <label class="block text-xs font-medium text-slate-500 mb-1">Nombre</label>
+          <input type="text" [(ngModel)]="usuarioForm.nombre" name="nombre" required placeholder="Nombre completo"
+            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900 transition-all">
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-500 mb-1">Email</label>
+          <input type="email" [(ngModel)]="usuarioForm.email" name="email" required placeholder="correo@ejemplo.com"
+            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900 transition-all">
+        </div>
+
+        <div *ngIf="!editando">
+          <label class="block text-xs font-medium text-slate-500 mb-1">Contraseña</label>
+          <input type="password" [(ngModel)]="usuarioForm.password" name="password" required placeholder="••••••••"
+            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900 transition-all">
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-500 mb-1">Rol</label>
+          <select [(ngModel)]="usuarioForm.rol_id" name="rol_id" required
+            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900 transition-all">
+            <option value="" disabled selected>Seleccionar rol</option>
+            <option *ngFor="let rol of roles" [value]="rol.id">{{ rol.nombre }}</option>
+          </select>
+        </div>
+
+        <!-- Botones de Acción del Modal -->
+        <div class="flex justify-end gap-2 pt-3 border-t border-slate-100 mt-4">
+          <button type="button" (click)="cerrarModal()"
+            class="px-3.5 py-2 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">
+            Cancelar
+          </button>
+          <button type="submit"
+            class="px-4 py-2 text-xs font-medium text-white bg-slate-900 hover:bg-slate-800 rounded-lg transition-colors">
+            {{ editando ? 'Guardar cambios' : 'Crear usuario' }}
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  <app-confirmation-dialog
+    [open]="!!usuarioAEliminar || confirmacionEdicion"
+    [title]="usuarioAEliminar ? 'Eliminar usuario' : 'Confirmar edición'"
+    [message]="usuarioAEliminar
+      ? 'Esta acción es permanente. Confirma el nombre de la cuenta que vas a eliminar.'
+      : '¿Deseas guardar los cambios realizados a este usuario?'"
+    [details]="usuarioAEliminar
+      ? usuarioAEliminar.nombre + ' · ' + usuarioAEliminar.email
+      : usuarioForm.nombre + ' · ' + usuarioForm.email"
+    [confirmLabel]="usuarioAEliminar
+      ? (eliminandoUsuario ? 'Eliminando…' : 'Eliminar usuario')
+      : (actualizandoUsuario ? 'Guardando…' : 'Guardar cambios')"
+    [confirmationText]="usuarioAEliminar?.nombre ?? null"
+    [confirmationPrompt]="usuarioAEliminar
+      ? 'Escribe ' + usuarioAEliminar.nombre + ' para confirmar'
+      : ''"
+    [(confirmationValue)]="nombreConfirmacionEliminacion"
+    [tone]="usuarioAEliminar ? 'danger' : 'primary'"
+    [busy]="eliminandoUsuario || actualizandoUsuario"
+    (confirmed)="confirmarAccion()"
+    (cancelled)="cerrarConfirmacion()">
+  </app-confirmation-dialog>
+
+  <!-- TABLA DE USUARIOS -->
+  <div class="bg-white rounded-xl shadow-xs border border-slate-200/70 overflow-hidden">
+    <div class="p-4 sm:p-5 border-b border-slate-100 flex justify-between items-center">
+      <div class="flex items-center gap-2">
+        <h2 class="text-sm font-semibold text-slate-900">Usuarios</h2>
+        <span class="text-[11px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-medium">
+          {{ usuarios.length }}
+        </span>
+      </div>
+      <button (click)="abrirModalCrear()"
+        class="px-3.5 py-2 text-xs font-medium text-white bg-slate-900 hover:bg-slate-800 rounded-lg transition-colors flex items-center gap-1.5 shadow-xs">
+        <i class="fa-solid fa-plus text-[10px]"></i> Nuevo usuario
+      </button>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs text-slate-600">
+        <thead class="bg-slate-50/50 text-[11px] font-medium uppercase tracking-wider text-slate-400 border-b border-slate-100">
+          <tr>
+            <th class="px-5 py-3">Nombre</th>
+            <th class="px-5 py-3">Email</th>
+            <th class="px-5 py-3">Rol</th>
+            <th class="px-5 py-3">Estado</th>
+            <th class="px-5 py-3 text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr *ngFor="let u of usuarios" class="hover:bg-slate-50/50 transition-colors">
+            <td class="px-5 py-3 font-medium text-slate-900">
+              <div class="flex items-center gap-2.5">
+                <div class="w-7 h-7 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center font-semibold text-[10px]">
+                  {{ u.nombre.charAt(0) }}
+                </div>
+                <span>{{ u.nombre }}</span>
+              </div>
+            </td>
+            <td class="px-5 py-3 text-slate-500">{{ u.email }}</td>
+            <td class="px-5 py-3">
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-700">
+                {{ u.roles?.nombre || ('Rol #' + u.rol_id) }}
+              </span>
+            </td>
+            <td class="px-5 py-3">
+              <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium"
+                [ngClass]="u.activo ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'">
+                <span class="w-1.5 h-1.5 rounded-full" [ngClass]="u.activo ? 'bg-emerald-500' : 'bg-rose-500'"></span>
+                {{ u.activo ? 'Activo' : 'Inactivo' }}
+              </span>
+            </td>
+            <td class="px-5 py-3 text-right whitespace-nowrap">
+              <div class="inline-flex items-center gap-0.5">
+                <button (click)="editarUsuarioModal(u)" title="Editar" class="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-md transition-colors">
+                  <i class="fa-solid fa-pen text-[11px]"></i>
+                </button>
+                <button (click)="abrirModalEliminar(u)" [attr.aria-label]="'Eliminar usuario ' + u.nombre" title="Eliminar" class="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors">
+                  <i class="fa-solid fa-trash text-[11px]"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngIf="usuarios.length === 0">
+            <td colspan="5" class="px-5 py-12 text-center text-slate-400">
+              <div class="flex flex-col items-center justify-center space-y-2">
+                <i class="fa-solid fa-users-slash text-xl text-slate-300"></i>
+                <p class="text-xs">No hay usuarios registrados.</p>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+</file>
+
+<file path="src/app/users/users.ts">
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { IntrusionService } from '../services/intrusion.service';
+import { HeaderService } from '../services/header.service';
+import { Usuario, Rol } from '../models/intrusion.model';
+import { ConfirmationDialogComponent } from '../shared/confirmation-dialog/confirmation-dialog';
+
+@Component({
+  selector: 'app-users',
+  standalone: true,
+  imports: [CommonModule, FormsModule, ConfirmationDialogComponent],
+  styleUrl: './users.css',
+  templateUrl: './users.html',
+})
+export class UsersComponent implements OnInit {
+  usuarios: Usuario[] = [];
+  roles: Rol[] = [];
+
+  usuarioForm: Usuario = {
+    nombre: '',
+    email: '',
+    password: '',
+    rol_id: 1,
+    activo: true
+  };
+
+  editando: boolean = false;
+  usuarioIdEditando?: number;
+  mostrarModal: boolean = false;
+  usuarioAEliminar: Usuario | null = null;
+  nombreConfirmacionEliminacion = '';
+  eliminandoUsuario = false;
+  confirmacionEdicion = false;
+  actualizandoUsuario = false;
+
+  mensajeAlerta: string = '';
+  tipoAlerta: 'success' | 'error' = 'success';
+  private alertaTimer: any;
+
+  constructor(
+    private intrusionService: IntrusionService,
+    private headerService: HeaderService,
+    private cdr: ChangeDetectorRef // 👈 Inyección del detector de cambios
+  ) {}
+
+  ngOnInit(): void {
+    this.headerService.cambiarHeader(
+      'Gestión De Usuario',
+      'Administración de Accesos y Credenciales'
+    );
+
+    this.cargarDatos();
+  }
+
+  cargarDatos(): void {
+    this.intrusionService.obtenerUsuarios().subscribe({
+      next: (data) => {
+        console.log('DATOS ASIGNADOS A LA TABLA:', data);
+        this.usuarios = data;
+        this.cdr.detectChanges(); // 👈 Fuerza el pintado inmediato en la vista
+      },
+      error: (err) => console.error('Error al cargar usuarios:', err)
+    });
+
+    this.intrusionService.obtenerRoles().subscribe({
+      next: (data) => {
+        this.roles = data;
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('Error al cargar roles:', err)
+    });
+  }
+
+  abrirModalCrear(): void {
+    this.resetForm();
+    this.mostrarModal = true;
+  }
+
+  editarUsuarioModal(usuario: Usuario): void {
+    this.editando = true;
+    this.usuarioIdEditando = usuario.id;
+    this.usuarioForm = {
+      nombre: usuario.nombre,
+      email: usuario.email,
+      rol_id: usuario.rol_id,
+      activo: usuario.activo ?? true
+    };
+    this.mostrarModal = true;
+  }
+
+  cerrarModal(): void {
+    this.mostrarModal = false;
+    this.confirmacionEdicion = false;
+    this.resetForm();
+  }
+
+  guardarUsuario(): void {
+    if (this.editando && this.usuarioIdEditando !== undefined) {
+      this.confirmacionEdicion = true;
+    } else {
+      this.intrusionService.crearUsuario(this.usuarioForm).subscribe({
+        next: () => {
+          this.cerrarModal();
+          this.cargarDatos();
+          this.mostrarAlerta('Usuario creado exitosamente', 'success');
+        },
+        error: (err) => {
+          console.error('Error al crear usuario:', err);
+          this.mostrarAlerta('Error al crear el usuario. Verifica los datos.', 'error');
+        }
+      });
+    }
+  }
+
+  confirmarAccion(): void {
+    if (this.usuarioAEliminar) {
+      this.confirmarEliminacion();
+      return;
+    }
+
+    if (this.confirmacionEdicion) this.confirmarEdicion();
+  }
+
+  cerrarConfirmacion(): void {
+    if (this.eliminandoUsuario || this.actualizandoUsuario) return;
+
+    if (this.usuarioAEliminar) {
+      this.cerrarModalEliminar();
+    } else {
+      this.confirmacionEdicion = false;
+    }
+  }
+
+  private confirmarEdicion(): void {
+    if (!this.editando || this.usuarioIdEditando === undefined || this.actualizandoUsuario) return;
+
+    this.actualizandoUsuario = true;
+    this.intrusionService.actualizarUsuario(this.usuarioIdEditando, this.usuarioForm).subscribe({
+      next: () => {
+        this.actualizandoUsuario = false;
+        this.confirmacionEdicion = false;
+        this.cerrarModal();
+        this.cargarDatos();
+        this.mostrarAlerta('Usuario actualizado correctamente', 'success');
+      },
+      error: (err) => {
+        console.error('Error al actualizar usuario:', err);
+        this.actualizandoUsuario = false;
+        this.mostrarAlerta('Error al actualizar el usuario', 'error');
+      }
+    });
+  }
+
+  abrirModalEliminar(usuario: Usuario): void {
+    if (usuario.id === undefined) {
+      console.error('No se puede eliminar un usuario sin identificador.');
+      this.mostrarAlerta('No se puede eliminar este usuario porque no tiene identificador.', 'error');
+      return;
+    }
+
+    this.usuarioAEliminar = usuario;
+    this.nombreConfirmacionEliminacion = '';
+  }
+
+  cerrarModalEliminar(): void {
+    if (this.eliminandoUsuario) return;
+
+    this.usuarioAEliminar = null;
+    this.nombreConfirmacionEliminacion = '';
+  }
+
+  get puedeConfirmarEliminacion(): boolean {
+    const nombreEsperado = this.usuarioAEliminar?.nombre.trim().toLocaleLowerCase();
+    const nombreIngresado = this.nombreConfirmacionEliminacion.trim().toLocaleLowerCase();
+
+    return !!nombreEsperado
+      && nombreIngresado === nombreEsperado
+      && !this.eliminandoUsuario;
+  }
+
+  confirmarEliminacion(): void {
+    if (!this.puedeConfirmarEliminacion || this.usuarioAEliminar?.id === undefined) return;
+
+    const usuarioId = this.usuarioAEliminar.id;
+    this.eliminandoUsuario = true;
+
+    this.intrusionService.eliminarUsuario(usuarioId).subscribe({
+      next: () => {
+        this.eliminandoUsuario = false;
+        this.cerrarModalEliminar();
+        this.cargarDatos();
+        this.mostrarAlerta('Usuario eliminado correctamente', 'success');
+      },
+      error: (err) => {
+        console.error('Error al eliminar usuario:', err);
+        this.eliminandoUsuario = false;
+        this.mostrarAlerta('No se pudo eliminar el usuario', 'error');
+      }
+    });
+  }
+
+  resetForm(): void {
+    this.editando = false;
+    this.usuarioIdEditando = undefined;
+    this.usuarioForm = {
+      nombre: '',
+      email: '',
+      password: '',
+      rol_id: 1,
+      activo: true
+    };
+  }
+
+  mostrarAlerta(mensaje: string, tipo: 'success' | 'error'): void {
+    this.mensajeAlerta = mensaje;
+    this.tipoAlerta = tipo;
+
+    if (this.alertaTimer) clearTimeout(this.alertaTimer);
+
+    this.alertaTimer = setTimeout(() => {
+      this.mensajeAlerta = '';
+    }, 3500);
+  }
+}
+</file>
+
+<file path="src/app/app.config.ts">
+import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import { provideRouter } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
+import { routes } from './app.routes';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideZoneChangeDetection({ eventCoalescing: true }),
+    provideRouter(routes),
+    provideHttpClient()
+  ]
+};
+</file>
+
+<file path="src/app/app.html">
+<router-outlet></router-outlet>
+</file>
+
+<file path="src/index.html">
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>EmpresarioTec</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+</head>
+<body>
+  <app-root></app-root>
+</body>
+</html>
+</file>
+
+<file path="src/main.ts">
+import 'zone.js';
+import '@angular/compiler';
+import { ɵresolveComponentResources } from '@angular/core';
+import { bootstrapApplication } from '@angular/platform-browser';
+import { appConfig } from './app/app.config';
+import { App } from './app/app';
+
+ɵresolveComponentResources(async (url) => {
+  const response = await fetch(url);
+  return await response.text();
+}).then(() => {
+  bootstrapApplication(App, appConfig)
+    .catch((err) => console.error(err));
+});
+</file>
+
+<file path="src/styles.css">
+/* You can add global styles to this file, and also import other style files */
+@import '@fortawesome/fontawesome-free/css/all.min.css';
+
+@import 'tailwindcss';
+</file>
+
+<file path="angular.json">
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "cli": {
+    "packageManager": "npm",
+    "analytics": false
+  },
+  "newProjectRoot": "projects",
+  "projects": {
+    "aduinoproyect": {
+      "projectType": "application",
+      "schematics": {},
+      "root": "",
+      "sourceRoot": "src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "src/main.ts",
+            "tsConfig": "tsconfig.app.json",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "public"
+              }
+            ],
+            "styles": [
+              "src/styles.css"
+            ]
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "4kB",
+                  "maximumError": "8kB"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "aduinoproyect:build:production"
+            },
+            "development": {
+              "buildTarget": "aduinoproyect:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test"
+        }
+      }
+    }
+  }
+}
+</file>
+
+<file path="package.json">
+{
+  "name": "aduinoproyect",
+  "version": "0.0.0",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test"
+  },
+  "private": true,
+  "packageManager": "npm@11.19.0",
+  "dependencies": {
+    "@angular/common": "^22.1.0",
+    "@angular/compiler": "^22.1.0",
+    "@angular/core": "^22.1.0",
+    "@angular/forms": "^22.1.0",
+    "@angular/platform-browser": "^22.1.0",
+    "@angular/router": "^22.1.0",
+    "@fortawesome/fontawesome-free": "^7.3.1",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0",
+    "zone.js": "^0.16.3"
+  },
+  "devDependencies": {
+    "@angular/build": "^22.1.8",
+    "@angular/cli": "^22.1.8",
+    "@angular/compiler-cli": "^22.1.0",
+    "@tailwindcss/postcss": "^4.1.12",
+    "jsdom": "^28.0.0",
+    "postcss": "^8.5.3",
+    "prettier": "^3.8.1",
+    "tailwindcss": "^4.1.12",
+    "typescript": "~6.0.2",
+    "vitest": "^4.0.8"
+  }
+}
+</file>
+
+<file path="src/app/app.ts">
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterOutlet } from '@angular/router';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterOutlet
+  ],
+  templateUrl: './app.html',
+  styleUrls: ['./app.css']
+})
+export class App {
+  title = 'EmpresarioTec';
+}
+</file>
+
+<file path="src/app/app.routes.ts">
+import { Routes } from '@angular/router';
+import { LoginComponent } from './login/login';
+import { MainLayoutComponent } from './layouts/main-layout/main-layout';
+import { DashboardComponent } from './dashboard/dashboard';
+import { UsersComponent } from './users/users';
+import { Logs } from './logs/logs';
+import { Devices } from './devices/devices'; // <--- Importa tu componente de dispositivos
+import { authGuard } from './guards/auth-guard';
+
+export const routes: Routes = [
+  // 1. Pantalla de login independiente (Sin Sidebar)
+  {
+    path: 'login',
+    component: LoginComponent
+  },
+
+  // Redirección por defecto
+  {
+    path: '',
+    redirectTo: 'login',
+    pathMatch: 'full'
+  },
+
+  // 2. Vistas protegidas que SÍ llevan el Sidebar y Header mediante el layout
+  {
+    path: '',
+    component: MainLayoutComponent,
+    canActivate: [authGuard],
+    children: [
+      {
+        path: 'dashboard',
+        component: DashboardComponent,
+        data: { titulo: 'Panel De Control', subtitulo: 'Perímetro de Seguridad' }
+      },
+      {
+        path: 'devices',
+        component: Devices, // <--- Ruta de Dispositivos y Pines
+        data: { titulo: 'Dispositivos y Pines', subtitulo: 'Control de Hardware y Arduino' }
+      },
+      {
+        path: 'usuarios',
+        component: UsersComponent,
+        data: { titulo: 'Gestión De Usuario', subtitulo: 'Administración de Accesos y Credenciales' }
+      },
+      {
+        path: 'logs',
+        component: Logs,
+        data: { titulo: 'LOGS DEL SISTEMA', subtitulo: 'Depuración y registros de actividad serial' }
+      }
+    ]
+  },
+
+  // Ruta comodín para URLs no encontradas
+  {
+    path: '**',
+    redirectTo: 'login'
+  }
+];
+</file>
+
+</files>

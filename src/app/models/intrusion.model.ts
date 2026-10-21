@@ -12,7 +12,9 @@ export enum EstadoPerimetro {
   SIN_CONEXION = 0,
   ZONA_SEGURA = 1,
   ADVERTENCIA = 2,
-  ALERTA_CRITICA = 3
+  ALERTA_CRITICA = 3,
+  PUERTA_FORZADA = 4,
+  IMPACTO = 5
 }
 
 // Modelo correspondiente a la tabla historial_alertas_criticas
@@ -24,6 +26,12 @@ export interface AlertaCritica {
   intrusiones: number;
   duracion_segundos: number;
   fecha_hora: string;
+  dispositivos?: {
+    nombre?: string;
+    ubicacion?: string;
+    tipo?: string;
+    pin_conexion?: string;
+  };
 }
 
 // Modelo correspondiente a la tabla historial_monitoreo_general
@@ -33,6 +41,25 @@ export interface MonitoreoGeneral {
   codigo: number;
   mensaje: string;
   fecha_hora: string;
+  dispositivos?: {
+    nombre?: string;
+    ubicacion?: string;
+    tipo?: string;
+    pin_conexion?: string;
+  };
+}
+
+export interface Dispositivo {
+  id: number;
+  nombre: string;
+  ubicacion?: string;
+  puerto_com?: string;
+  tipo?: string;
+  pin_conexion?: string;
+  descripcion_tecnica?: string;
+  imagen_url?: string; 
+  activo?: boolean;
+  fecha_registro?: string;
 }
 
 // Modelo correspondiente a la tabla roles
@@ -66,6 +93,7 @@ export interface SesionUsuario {
   nombre: string;
   email: string;
   rol: string;
+  permisos?: string[];
 }
 
 export interface LoginResponse {

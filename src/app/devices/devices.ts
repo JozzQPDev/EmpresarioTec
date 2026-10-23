@@ -49,8 +49,10 @@ export class Devices implements OnInit {
     this.cargarDispositivos();
   }
 
-  cargarDispositivos(): void {
-    this.cargando = true;
+  cargarDispositivos(silencioso = false): void {
+    if (!silencioso) {
+      this.cargando = true;
+    }
     this.error = '';
     this.cdr.detectChanges(); // Fuerza a Angular a renderizar el esqueleto de inmediato
 
@@ -72,7 +74,7 @@ export class Devices implements OnInit {
   abrirModalCrear(): void {
     this.editando = false;
     this.archivoSeleccionado = null;
-    this.previewImagenUrl = null;
+    this.liberarPreviewImagen();
     this.dispositivoForm = this.nuevoDispositivo();
     this.mostrarModal = true;
   }
@@ -80,7 +82,7 @@ export class Devices implements OnInit {
   editarDispositivo(dispositivo: Dispositivo): void {
     this.editando = true;
     this.archivoSeleccionado = null;
-    this.previewImagenUrl = null;
+    this.liberarPreviewImagen();
     this.dispositivoForm = {
       ...dispositivo,
       activo: dispositivo.activo ?? true
@@ -95,16 +97,21 @@ export class Devices implements OnInit {
     this.accionConfirmacion = null;
     this.nombreConfirmacionEliminacion = '';
     this.archivoSeleccionado = null;
-    this.previewImagenUrl = null;
+    this.liberarPreviewImagen();
     this.dispositivoForm = this.nuevoDispositivo();
   }
 
-  onFileSelected(event: any): void {
-    const file = event.target.files[0];
-    if (file) {
-      this.archivoSeleccionado = file;
-      this.previewImagenUrl = URL.createObjectURL(file);
-    }
+  onFileSelected(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+
+    this.liberarPreviewImagen();
+    this.archivoSeleccionado = file;
+    this.previewImagenUrl = URL.createObjectURL(file);
+  }
+
+  esDispositivoPrincipal(dispositivo: Dispositivo): boolean {
+    return dispositivo.es_principal ?? dispositivo.id === 1;
   }
 
   guardarDispositivo(): void {
@@ -200,6 +207,7 @@ export class Devices implements OnInit {
     const id = this.dispositivoForm.id;
     if (id === undefined) {
       this.mostrarAlerta('No se puede actualizar el dispositivo porque no tiene identificador.', 'error');
+      this.cerrarConfirmacion();
       return;
     }
 
@@ -232,7 +240,7 @@ export class Devices implements OnInit {
   private finalizarProcesoExitoso(mensaje: string): void {
     this.procesando = false;
     this.cerrarModal();
-    this.cargarDispositivos();
+    this.cargarDispositivos(true);
     this.mostrarAlerta(mensaje, 'success');
   }
 
@@ -244,7 +252,7 @@ export class Devices implements OnInit {
       next: () => {
         this.procesando = false;
         this.cerrarConfirmacion();
-        this.cargarDispositivos();
+        this.cargarDispositivos(true);
         this.mostrarAlerta('Dispositivo eliminado correctamente.', 'success');
       },
       error: (err) => {
@@ -266,5 +274,12 @@ export class Devices implements OnInit {
       imagen_url: '',
       activo: true
     };
+  }
+
+  private liberarPreviewImagen(): void {
+    if (this.previewImagenUrl) {
+      URL.revokeObjectURL(this.previewImagenUrl);
+      this.previewImagenUrl = null;
+    }
   }
 }

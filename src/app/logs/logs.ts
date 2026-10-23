@@ -5,7 +5,7 @@ import { HeaderService } from '../services/header.service';
 import { IntrusionService } from '../services/intrusion.service';
 import { AlertaCritica, MonitoreoGeneral } from '../models/intrusion.model';
 import { forkJoin } from 'rxjs';
-import { skeleton } from 'boneyard-js'; // 👈 Importación corregida en minúscula según la definición de tipos
+import { SkeletonComponent } from 'boneyard-js/angular';
 
 interface SystemLog {
   id: string;
@@ -18,7 +18,7 @@ interface SystemLog {
 @Component({
   selector: 'app-logs',
   standalone: true,
-  imports: [CommonModule, FormsModule], // No requiere registrarlo en imports si boneyard actúa a nivel de CLI/runtime global
+  imports: [CommonModule, FormsModule, SkeletonComponent],
   templateUrl: './logs.html',
   styleUrls: ['./logs.css']
 })

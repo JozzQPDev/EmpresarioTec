@@ -52,6 +52,7 @@ export interface MonitoreoGeneral {
 export interface Dispositivo {
   id: number;
   nombre: string;
+  es_principal?: boolean;
   ubicacion?: string;
   puerto_com?: string;
   tipo?: string;

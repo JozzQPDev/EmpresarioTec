@@ -1,296 +1,457 @@
-<main class="flex-1 p-6 md:p-10 space-y-6 overflow-y-auto mt-2">
+<boneyard-skeleton
+  class="block"
+  name="dashboard"
+  [loading]="cargando"
+  [initialBones]="bonesCarga"
+  color="#cbd5e1"
+  darkColor="#475569"
+  animate="pulse"
+  select="viewport">
+<main class="flex-1 overflow-y-auto px-7 py-8 font-sans antialiased">
+  <div class="max-w-[1600px] space-y-8">
 
-  <!-- ==================== VISTA SKELETON LOADER (CARGANDO = TRUE) ==================== -->
-  <ng-container *ngIf="cargando">
-    <!-- Skeleton KPIs -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-pulse">
-      <div *ngFor="let i of [1,2,3,4]" class="bg-white rounded-xl p-5 border border-slate-200/70 h-32 flex flex-col justify-between">
-        <div class="flex justify-between items-center">
-          <div class="h-3 bg-slate-200 rounded-md w-24"></div>
-          <div class="h-8 w-8 bg-slate-100 rounded-lg"></div>
-        </div>
-        <div class="h-7 bg-slate-200 rounded-md w-1/2"></div>
-        <div class="h-2.5 bg-slate-100 rounded-md w-3/4"></div>
-      </div>
+    <!-- Error de carga -->
+    <div *ngIf="error" role="alert"
+         class="flex items-center justify-between gap-4 border-l-2 border-rose-500 pl-3 text-xs text-rose-700">
+      <span>{{ error }}</span>
+      <button type="button" (click)="cargarDatos()" class="shrink-0 underline underline-offset-4 cursor-pointer">Reintentar</button>
     </div>
 
-    <!-- Skeleton Gráficos -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 animate-pulse">
-      <div class="lg:col-span-2 bg-white rounded-xl p-6 border border-slate-200/70 space-y-6">
-        <div class="h-4 bg-slate-200 rounded-md w-1/3"></div>
-        <div class="space-y-4">
-          <div class="h-6 bg-slate-100 rounded-md"></div>
-          <div class="h-6 bg-slate-100 rounded-md"></div>
-          <div class="h-6 bg-slate-100 rounded-md"></div>
+    <ng-container *ngIf="!cargando">
+
+      <!-- Estado vacío compartido por las tarjetas de gráficos -->
+      <ng-template #sinDatos>
+        <div class="grid h-48 place-items-center text-center text-xs text-slate-400">
+          Aún no hay alertas para graficar.
         </div>
-      </div>
-      <div class="bg-white rounded-xl p-6 border border-slate-200/70 space-y-4">
-        <div class="h-4 bg-slate-200 rounded-md w-1/2"></div>
-        <div class="h-16 bg-slate-100 rounded-xl"></div>
-        <div class="space-y-2">
-          <div class="h-3 bg-slate-100 rounded-md"></div>
-          <div class="h-3 bg-slate-100 rounded-md"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Skeleton Tabla -->
-    <div class="bg-white rounded-xl border border-slate-200/70 p-5 space-y-4 animate-pulse">
-      <div class="h-4 bg-slate-200 rounded-md w-1/4"></div>
-      <div class="space-y-3">
-        <div *ngFor="let row of [1,2,3,4]" class="h-10 bg-slate-50 rounded-lg w-full"></div>
-      </div>
-    </div>
-  </ng-container>
+      </ng-template>
 
 
-  <!-- ==================== VISTA REAL DEL DASHBOARD (CARGANDO = FALSE) ==================== -->
-  <ng-container *ngIf="!cargando">
+      <!-- ============ 2. SECCIÓN DE INDICADORES PRINCIPALES (KPI Grid) ============ -->
+      <section aria-label="Indicadores principales" class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
 
-    <!-- 1. TARJETAS DE INDICADORES PRINCIPALES (KPIS EXTENDIDOS) -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-
-      <!-- KPI 1: Estado del Perímetro -->
-      <div class="bg-white rounded-xl p-5 shadow-xs border border-slate-200/70 flex flex-col justify-between transition-all hover:border-slate-300">
+                <!-- Tarjeta 2: Alertas en 7 días -->
+        <article class="p-5 ">
         <div>
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Perímetro</span>
-            <span class="p-2 rounded-lg bg-slate-100 text-slate-600">
-              <i class="fa-solid fa-shield-halved text-sm"></i>
+          <p class="text-xs text-slate-500">Estado del perímetro</p>
+          <div class="mt-2 flex items-center gap-3">
+            <span class="relative flex h-3 w-3">
+              <span *ngIf="nivelActual === 'critico'"
+                    class="absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-70 animate-ping motion-reduce:animate-none"></span>
+              <span class="relative inline-flex h-3 w-3 rounded-full"
+                    [ngClass]="{
+                      'bg-emerald-500': nivelActual === 'seguro',
+                      'bg-amber-500':   nivelActual === 'advertencia',
+                      'bg-rose-500':    nivelActual === 'critico',
+                      'bg-slate-300':   nivelActual === 'desconectado'
+                    }"></span>
+            </span>
+            <h1 class="text-xl font-semibold tracking-tight sm:text-2xl"
+                [ngClass]="{
+                  'text-slate-900': nivelActual === 'seguro' || nivelActual === 'desconectado',
+                  'text-amber-700': nivelActual === 'advertencia',
+                  'text-rose-700':  nivelActual === 'critico'
+                }">
+              {{ nivelActual === 'seguro' ? 'Zona segura'
+                : nivelActual === 'advertencia' ? 'Presencia detectada'
+                : nivelActual === 'critico' ? 'Intrusión'
+                : 'Sin conexión con el Arduino' }}
+            </h1>
+          </div>
+          <div class="mt-2 max-w-prose space-y-1 text-xs text-slate-500">
+            <ng-container *ngIf="zonaActual || descripcionActual; else mensajeSimple">
+              <p *ngIf="zonaActual"><span class="font-medium text-slate-600">Zona:</span> {{ zonaActual }}</p>
+              <p *ngIf="descripcionActual"><span class="font-medium text-slate-600">Descripción:</span> {{ descripcionActual }}</p>
+            </ng-container>
+            <ng-template #mensajeSimple>
+              <p>{{ mensajeEstado || 'Monitoreando barreras físicas…' }}</p>
+            </ng-template>
+          </div>
+        </div>
+        </article>
+
+        <!-- Tarjeta 1: Intrusiones Acumuladas -->
+        <article class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-2xs transition-all hover:border-slate-300">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Intrusiones acumuladas</p>
+              <p class="mt-2 text-xl font-bold tracking-tight text-slate-900">{{ estadoActual.intrusiones_totales }}</p>
+            </div>
+            <span class="grid h-10 w-10 place-items-center rounded-xl bg-rose-50 text-rose-600 border border-rose-100">
+              <i class="fa-solid fa-triangle-exclamation text-base" aria-hidden="true"></i>
             </span>
           </div>
-          <div class="flex items-center gap-2 my-1">
-            <span class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-medium bg-slate-900 text-slate-100 shadow-2xs">
-              <span class="w-2 h-2 rounded-full" [ngClass]="{
-                'bg-emerald-400 animate-pulse': estadoActual.estado !== 0,
-                'bg-rose-500': estadoActual.estado === 0
-              }"></span>
-              {{ estadoActual.estado === 0 ? 'Desconectado' : 'Operativo' }}
+          <div class="mt-4 border-t border-slate-100 pt-3 text-xs text-slate-500">
+            Registro total histórico del sistema
+          </div>
+        </article>
+
+
+
+        <!-- Tarjeta 3: Duración Media -->
+        <article class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-2xs transition-all hover:border-slate-300">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Duración media</p>
+              <p class="mt-2 text-xl font-bold tracking-tight text-slate-900">
+                {{ duracionMedia === null ? '—' : formatearDuracion(duracionMedia) }}
+              </p>
+            </div>
+            <span class="grid h-10 w-10 place-items-center rounded-xl bg-violet-50 text-violet-600 border border-violet-100">
+              <i class="fa-regular fa-clock text-base" aria-hidden="true"></i>
             </span>
           </div>
-        </div>
-        <div class="mt-3 pt-2.5 border-t border-slate-100">
-          <p class="text-[11px] text-slate-400 truncate">
-            {{ estadoActual.estado === 1 ? 'Zona segura y despejada' : 'Señal recibida del Arduino' }}
-          </p>
-        </div>
-      </div>
+          <div class="mt-4 border-t border-slate-100 pt-3 text-xs text-slate-500">
+            Basada en {{ historialAlertasBD.length }} {{ historialAlertasBD.length === 1 ? 'registro' : 'registros' }}
+          </div>
+        </article>
 
-      <!-- KPI 2: Intrusiones Totales -->
-      <div class="bg-white rounded-xl p-5 shadow-xs border border-slate-200/70 flex flex-col justify-between transition-all hover:border-slate-300">
-        <div>
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Intrusiones</span>
-            <span class="p-2 rounded-lg bg-rose-50 text-rose-600">
-              <i class="fa-solid fa-triangle-exclamation text-sm"></i>
+        <!-- Tarjeta 4: Dispositivos Registrados -->
+        <article class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-2xs transition-all hover:border-slate-300">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Dispositivos registrados</p>
+              <p class="mt-2 text-xl font-bold tracking-tight text-slate-900">{{ totalDispositivos }}</p>
+            </div>
+            <span class="grid h-10 w-10 place-items-center rounded-xl bg-sky-50 text-sky-600 border border-sky-100">
+              <i class="fa-solid fa-microchip text-base" aria-hidden="true"></i>
             </span>
           </div>
-          <div class="text-3xl font-bold text-slate-900 tracking-tight">
-            {{ estadoActual.intrusiones_totales }}
+          <div class="mt-4 truncate border-t border-slate-100 pt-3 text-xs text-slate-500">
+            Principal: {{ estadoActual.dispositivo || 'Arduino Mega 2560' }}
           </div>
-        </div>
-        <div class="mt-3 pt-2.5 border-t border-slate-100">
-          <p class="text-[11px] text-slate-400">
-            Registros críticos acumulados
-          </p>
-        </div>
-      </div>
+        </article>
 
-      <!-- KPI 3: Dispositivos Activos -->
-      <div class="bg-white rounded-xl p-5 shadow-xs border border-slate-200/70 flex flex-col justify-between transition-all hover:border-slate-300">
-        <div>
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Hardware</span>
-            <span class="p-2 rounded-lg bg-sky-50 text-sky-600">
-              <i class="fa-solid fa-microchip text-sm"></i>
-            </span>
-          </div>
-          <div class="text-3xl font-bold text-slate-900 tracking-tight">
-            {{ totalDispositivos }} <span class="text-xs font-normal text-slate-400">sensores</span>
-          </div>
-        </div>
-        <div class="mt-3 pt-2.5 border-t border-slate-100">
-          <p class="text-[11px] text-slate-400">
-            Arduino Mega & Módulos vinculados
-          </p>
-        </div>
-      </div>
+      </section>
 
-      <!-- KPI 4: Estado de Enlace -->
-      <div class="bg-white rounded-xl p-5 shadow-xs border border-slate-200/70 flex flex-col justify-between transition-all hover:border-slate-300">
-        <div>
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Enlace COM</span>
-            <span class="p-2 rounded-lg bg-emerald-50 text-emerald-600">
-              <i class="fa-solid fa-tty text-sm"></i>
-            </span>
-          </div>
-          <div class="text-lg font-bold text-slate-900 tracking-tight truncate mt-1">
-            COM4 <span class="text-xs font-normal text-emerald-600">● 9600 baud</span>
-          </div>
-        </div>
-        <div class="mt-3 pt-2.5 border-t border-slate-100">
-          <p class="text-[11px] text-slate-400">
-            Puerto serial sincronizado
-          </p>
-        </div>
-      </div>
+      <!-- ============ 3. GRÁFICOS (cuadrícula 2 x 2, tarjetas idénticas) ============ -->
+      <section aria-label="Análisis de alertas" class="grid gap-6 lg:grid-cols-2">
 
-    </div>
+        <!-- 3a. Últimos 7 días -->
+        <article class="flex flex-col rounded-xl border border-slate-200 bg-white p-5">
+          <header>
+            <h2 class="text-sm font-semibold text-slate-900">Últimos 7 días</h2>
+            <p class="mt-0.5 text-xs text-slate-500">Alertas por día.</p>
+          </header>
 
-    <!-- 2. SECCIÓN DE ANÁLISIS VISUAL (GRÁFICOS DINÁMICOS Y RESUMEN) -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-      
-      <!-- Gráfico / Distribución de Tipos de Alerta -->
-      <div class="lg:col-span-2 bg-white rounded-xl p-6 shadow-xs border border-slate-200/70 flex flex-col justify-between">
-        <div class="flex items-center justify-between mb-6">
-          <div>
-            <h3 class="text-sm font-semibold text-slate-900">Distribución de Eventos del Sistema</h3>
-            <p class="text-xs text-slate-400">Frecuencia porcentual calculada desde Supabase</p>
-          </div>
-          <span class="text-xs px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 font-mono">Supabase DB</span>
-        </div>
-
-        <div class="space-y-4 my-2">
-          <div>
-            <div class="flex justify-between text-xs mb-1">
-              <span class="text-slate-700 font-medium flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Zona Segura / Reposo
-              </span>
-              <span class="text-slate-500 font-mono">{{ porcentajeSeguro }}%</span>
-            </div>
-            <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
-              <div class="bg-emerald-500 h-2.5 rounded-full transition-all duration-500" [style.width.%]="porcentajeSeguro"></div>
-            </div>
-          </div>
-
-          <div>
-            <div class="flex justify-between text-xs mb-1">
-              <span class="text-slate-700 font-medium flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-amber-500"></span> Presencia / Advertencia Láser
-              </span>
-              <span class="text-slate-500 font-mono">{{ porcentajeAdvertencia }}%</span>
-            </div>
-            <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
-              <div class="bg-amber-500 h-2.5 rounded-full transition-all duration-500" [style.width.%]="porcentajeAdvertencia"></div>
-            </div>
-          </div>
-
-          <div>
-            <div class="flex justify-between text-xs mb-1">
-              <span class="text-slate-700 font-medium flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-rose-500"></span> Intrusión Crítica / Puertas / Impactos
-              </span>
-              <span class="text-slate-500 font-mono">{{ porcentajeCritico }}%</span>
-            </div>
-            <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
-              <div class="bg-rose-500 h-2.5 rounded-full transition-all duration-500" [style.width.%]="porcentajeCritico"></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-          <span>Actualización en tiempo real activa</span>
-          <span class="text-emerald-600 font-medium flex items-center gap-1">
-            <i class="fa-solid fa-circle-check"></i> Sistema Estable
-          </span>
-        </div>
-      </div>
-
-      <!-- Panel Lateral de Resumen del Perímetro -->
-      <div class="bg-white rounded-xl p-6 shadow-xs border border-slate-200/70 flex flex-col justify-between">
-        <div>
-          <h3 class="text-sm font-semibold text-slate-900 mb-1">Resumen del Perímetro</h3>
-          <p class="text-xs text-slate-400 mb-4">Estado actual del mensaje analizado</p>
-          
-          <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/60 mb-4">
-            <div class="text-xs text-slate-400 uppercase tracking-wider mb-1">Mensaje Activo</div>
-            <div class="text-xs font-semibold text-slate-800">
-              {{ estadoActual.mensaje || 'Monitoreando barreras físicas...' }}
-            </div>
-          </div>
-
-          <div class="space-y-2.5 text-xs text-slate-600">
-            <div class="flex justify-between py-1.5 border-b border-slate-100">
-              <span class="text-slate-400">Torreta de luz:</span>
-              <span class="font-medium text-slate-700">Automatizada</span>
-            </div>
-            <div class="flex justify-between py-1.5 border-b border-slate-100">
-              <span class="text-slate-400">Buzzer de alarma:</span>
-              <span class="font-medium text-slate-700">Activo</span>
-            </div>
-            <div class="flex justify-between py-1.5">
-              <span class="text-slate-400">Cloud Storage:</span>
-              <span class="font-medium text-emerald-600">Supabase Connected</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="mt-4 pt-3 border-t border-slate-100 text-right">
-          <span class="text-[11px] text-slate-400 font-mono">EmpresarioTec Core v2.4</span>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- 3. TABLA DE HISTORIAL DE ALERTAS (DESDE BASE DE DATOS) -->
-    <div class="bg-white rounded-xl shadow-xs border border-slate-200/70 overflow-hidden">
-      <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
-        <h2 class="text-sm font-semibold text-slate-900 flex items-center gap-2">
-          <i class="fa-solid fa-clock-rotate-left text-slate-400 text-xs"></i>
-          Historial de Alertas Críticas 
-        </h2>
-        <span class="text-xs text-slate-500 bg-slate-100 px-3 py-1 rounded-full border border-slate-200/60">Últimos registros</span>
-      </div>
-
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs text-slate-600">
-          <thead class="bg-slate-50/50 text-[11px] font-medium uppercase tracking-wider text-slate-400 border-b border-slate-100">
-            <tr>
-              <th scope="col" class="px-5 py-3">Fecha / Hora</th>
-              <th scope="col" class="px-5 py-3">Estado</th>
-              <th scope="col" class="px-5 py-3">Mensaje</th>
-              <th scope="col" class="px-5 py-3 text-center">Duración</th>
-              <th scope="col" class="px-5 py-3 text-right">Intrusiones</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-100">
-            <tr *ngFor="let alerta of historialAlertasBD" class="hover:bg-slate-50/50 transition-colors">
-              <td class="px-5 py-3 font-mono text-slate-500 whitespace-nowrap">
-                {{ alerta.fecha_hora | date:'medium' }}
-              </td>
-              <td class="px-5 py-3 whitespace-nowrap">
-                <span
-                  class="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-medium"
-                  [ngClass]="getClaseEstado(alerta.codigo)">
-                  {{ getNombreEstado(alerta.codigo) }}
-                </span>
-              </td>
-              <td class="px-5 py-3 font-medium text-slate-800">
-                {{ alerta.mensaje }}
-              </td>
-              <td class="px-5 py-3 font-mono text-center text-slate-500 whitespace-nowrap">
-                {{ alerta.duracion_segundos }}s
-              </td>
-              <td class="px-5 py-3 font-semibold text-slate-900 text-right whitespace-nowrap">
-                {{ alerta.intrusiones }}
-              </td>
-            </tr>
-
-            <!-- Fila cuando no hay datos -->
-            <tr *ngIf="historialAlertasBD.length === 0">
-              <td colspan="5" class="px-5 py-12 text-center text-slate-400">
-                <div class="flex flex-col items-center justify-center space-y-2">
-                  <i class="fa-solid fa-triangle-exclamation text-lg text-slate-300"></i>
-                  <p class="text-xs">No hay alertas registradas en la base de datos.</p>
+          <div class="mt-5 flex-1 overflow-visible">
+            <ng-container *ngIf="historialAlertasBD.length > 0; else sinDatos">
+              <div class="h-48 overflow-visible">
+                <div class="flex h-36 items-end gap-3 overflow-visible border-b border-slate-200" role="img"
+                     [attr.aria-label]="alertas7Dias + ' alertas en los últimos 7 días'">
+                  <div *ngFor="let d of alertasPorDia; let i = index"
+                       class="group relative z-0 flex h-full flex-1 items-end justify-center hover:z-30 focus:z-30"
+                       tabindex="0"
+                       [attr.aria-label]="d.fechaCompleta + ': ' + d.advertencias + ' advertencias, ' + d.criticos + ' críticas'">
+                    <div
+                      role="tooltip"
+                      class="pointer-events-none absolute bottom-full z-20 mb-2 hidden min-w-max rounded-lg bg-slate-900 px-3 py-2 text-left text-xs text-white shadow-lg group-hover:block group-focus:block"
+                      [ngClass]="i === 0 ? 'left-0' : i === alertasPorDia.length - 1 ? 'right-0' : 'left-1/2 -translate-x-1/2'">
+                      <p class="font-semibold">{{ d.fechaCompleta }}</p>
+                      <p class="mt-1 flex items-center gap-1.5 text-slate-300">
+                        <span class="h-1.5 w-1.5 rounded-full bg-amber-400"></span>
+                        {{ d.advertencias }} {{ d.advertencias === 1 ? 'advertencia' : 'advertencias' }}
+                      </p>
+                      <p class="mt-0.5 flex items-center gap-1.5 text-slate-300">
+                        <span class="h-1.5 w-1.5 rounded-full bg-rose-400"></span>
+                        {{ d.criticos }} {{ d.criticos === 1 ? 'crítica' : 'críticas' }}
+                      </p>
+                    </div>
+                    <div
+                         class="dashboard-chart-bar-enter flex w-full max-w-10 flex-col justify-end overflow-hidden rounded-t-md"
+                         [style.animation-delay]="(i * 70) + 'ms'"
+                         [style.height.%]="d.advPct + d.critPct"
+                         [style.min-height.px]="d.total ? 4 : 0">
+                      <span *ngIf="d.criticos > 0" class="block w-full bg-rose-500"
+                            [style.height.%]="(d.criticos / d.total) * 100"></span>
+                      <span *ngIf="d.advertencias > 0" class="block w-full bg-amber-500"
+                            [style.height.%]="(d.advertencias / d.total) * 100"></span>
+                    </div>
+                  </div>
                 </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+                <div class="mt-2 flex h-10 gap-3">
+                  <div *ngFor="let d of alertasPorDia" class="flex-1 text-center">
+                    <p class="text-xs capitalize text-slate-500">{{ d.etiqueta }}</p>
+                    <p class="text-xs font-medium text-slate-900">{{ d.total }}</p>
+                  </div>
+                </div>
+              </div>
+            </ng-container>
+          </div>
 
-  </ng-container>
+          <footer class="mt-5 flex gap-6 border-t border-slate-100 pt-3 text-xs text-slate-500">
+            <span class="flex items-center gap-2"><span class="h-2 w-2 rounded-full bg-amber-500"></span>Advertencia</span>
+            <span class="flex items-center gap-2"><span class="h-2 w-2 rounded-full bg-rose-500"></span>Crítico</span>
+          </footer>
+        </article>
 
+        <!-- 3b. Actividad por hora -->
+        <article class="relative z-0 flex flex-col overflow-visible rounded-xl border border-slate-200 bg-white p-5 hover:z-20 focus-within:z-20">
+          <header>
+            <h2 class="text-sm font-semibold text-slate-900">Actividad por hora</h2>
+            <p class="mt-0.5 text-xs text-slate-500">Hora de Perú (UTC−5) · alertas por hora.</p>
+          </header>
+
+          <div class="mt-5 flex-1 overflow-visible">
+            <ng-container *ngIf="historialAlertasBD.length > 0; else sinDatos">
+              <div class="h-48 overflow-visible">
+                <div class="flex h-36 items-end gap-0.5 overflow-visible border-b border-slate-200" role="img"
+                     aria-label="Alertas registradas por hora del día">
+                  <div *ngFor="let h of alertasPorHora; let i = index"
+                       class="group relative z-0 flex h-full flex-1 items-end hover:z-30 focus:z-30"
+                       tabindex="0"
+                       [attr.aria-label]="formatearHora(h.hora) + ', ' + h.total + (h.total === 1 ? ' alerta' : ' alertas')">
+                    <div
+                      role="tooltip"
+                      class="pointer-events-none absolute bottom-full z-20 mb-2 hidden min-w-max rounded-lg bg-slate-900 px-3 py-2 text-left text-xs text-white shadow-lg group-hover:block group-focus:block"
+                      [ngClass]="h.hora === 0 ? 'left-0' : h.hora === 23 ? 'right-0' : 'left-1/2 -translate-x-1/2'">
+                      <p class="font-semibold">{{ formatearHora(h.hora) }}</p>
+                      <p class="mt-0.5 text-slate-300">
+                        {{ h.total }} {{ h.total === 1 ? 'alerta' : 'alertas' }}
+                      </p>
+                    </div>
+                    <div
+                         class="dashboard-chart-bar-enter w-full rounded-t-sm"
+                         [style.animation-delay]="(i * 35) + 'ms'"
+                         [ngClass]="h.hora === horaPico ? 'bg-slate-900' : 'bg-slate-300'"
+                         [style.height.%]="h.pct"
+                         [style.min-height.px]="h.total ? 3 : 0"></div>
+                  </div>
+                </div>
+                <div class="mt-2 flex h-10 justify-between text-xs text-slate-500">
+                  <span>12:00 AM</span><span>06:00 AM</span><span>12:00 PM</span><span>06:00 PM</span><span>11:00 PM</span>
+                </div>
+              </div>
+            </ng-container>
+          </div>
+
+          <footer class="mt-5 border-t border-slate-100 pt-3 text-xs text-slate-500">
+            <ng-container *ngIf="horaPico !== null; else sinPico">
+              Mayor actividad a las <span class="font-mono text-slate-900">{{ formatearHora(horaPico) }}</span>
+            </ng-container>
+            <ng-template #sinPico>Sin hora pico todavía.</ng-template>
+          </footer>
+        </article>
+
+        <!-- 3c. Tipos de evento -->
+        <article class="flex flex-col rounded-xl border border-slate-200 bg-white p-5">
+          <header>
+            <h2 class="text-sm font-semibold text-slate-900">Tipos de evento</h2>
+            <p class="mt-0.5 text-xs text-slate-500">Cuántas veces ocurrió cada uno.</p>
+          </header>
+
+          <div class="mt-5 flex-1">
+            <ul *ngIf="historialAlertasBD.length > 0; else sinDatos" class="space-y-5">
+              <li *ngFor="let t of alertasPorTipo; let i = index">
+                <div class="flex items-baseline justify-between text-xs">
+                  <span class="text-slate-700">{{ t.nombre }}</span>
+                  <span class="font-mono text-slate-900">{{ t.total }}</span>
+                </div>
+                <div class="mt-1.5 h-1.5 rounded-full bg-slate-100">
+                  <div
+                       class="dashboard-chart-progress-enter h-1.5 rounded-full"
+                       [style.animation-delay]="(i * 90) + 'ms'"
+                       [ngClass]="getColorBarra(t.codigo)"
+                       [style.width.%]="t.pct"></div>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <footer class="mt-5 border-t border-slate-100 pt-3 text-xs text-slate-500">
+            {{ historialAlertasBD.length }} {{ historialAlertasBD.length === 1 ? 'registro' : 'registros' }} en total
+          </footer>
+        </article>
+
+        <!-- 3d. Distribución por nivel -->
+        <article class="relative z-0 flex flex-col overflow-visible rounded-xl border border-slate-200 bg-white p-5 hover:z-20 focus-within:z-20">
+          <header>
+            <h2 class="text-sm font-semibold text-slate-900">Distribución por nivel</h2>
+            <p class="mt-0.5 text-xs text-slate-500">Estados seguros del monitoreo y niveles de las alertas.</p>
+          </header>
+
+          <div class="mt-5 flex flex-1 items-center justify-center">
+            <ng-container *ngIf="totalEventosClasificados > 0; else sinDatos">
+              <div class="flex w-full flex-wrap items-center justify-center gap-8">
+                <div class="relative h-48 w-48 shrink-0">
+                  <svg class="h-full w-full overflow-visible" viewBox="0 0 120 120"
+                       role="img"
+                       [attr.aria-label]="'Distribución por nivel: reposo ' + porcentajeSeguro + '%, advertencia ' + porcentajeAdvertencia + '%, crítico ' + porcentajeCritico + '%'">
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="#f1f5f9" stroke-width="13"></circle>
+                    <g transform="rotate(-90 60 60)">
+                    <circle *ngIf="porcentajeSeguro > 0" cx="60" cy="60" r="50" fill="none"
+                            stroke="#10b981" stroke-width="13" stroke-linecap="butt"
+                            [attr.stroke-dasharray]="porcentajeSeguro * 3.1416 + ' 314.16'"
+                            stroke-dashoffset="0"
+                            class="dashboard-chart-donut-segment-enter"
+                            [class.dashboard-chart-donut-segment-active]="nivelDistribucionHover === 'seguro'"
+                            (mouseenter)="nivelDistribucionHover = 'seguro'"
+                            (mouseleave)="nivelDistribucionHover = null"
+                            (focus)="nivelDistribucionHover = 'seguro'"
+                            (blur)="nivelDistribucionHover = null"
+                            [attr.tabindex]="0"
+                            [attr.aria-label]="'Reposo: ' + eventosSeguros + ' eventos, ' + porcentajeSeguro + '%'"></circle>
+                    <circle *ngIf="porcentajeAdvertencia > 0" cx="60" cy="60" r="50" fill="none"
+                            stroke="#f59e0b" stroke-width="13" stroke-linecap="butt"
+                            [attr.stroke-dasharray]="porcentajeAdvertencia * 3.1416 + ' 314.16'"
+                            [attr.stroke-dashoffset]="-porcentajeSeguro * 3.1416"
+                            class="dashboard-chart-donut-segment-enter"
+                            [style.animation-delay]="'90ms'"
+                            [class.dashboard-chart-donut-segment-active]="nivelDistribucionHover === 'advertencia'"
+                            (mouseenter)="nivelDistribucionHover = 'advertencia'"
+                            (mouseleave)="nivelDistribucionHover = null"
+                            (focus)="nivelDistribucionHover = 'advertencia'"
+                            (blur)="nivelDistribucionHover = null"
+                            [attr.tabindex]="0"
+                            [attr.aria-label]="'Advertencia: ' + eventosAdvertencia + ' eventos, ' + porcentajeAdvertencia + '%'"></circle>
+                    <circle *ngIf="porcentajeCritico > 0" cx="60" cy="60" r="50" fill="none"
+                            stroke="#f43f5e" stroke-width="13" stroke-linecap="butt"
+                            [attr.stroke-dasharray]="porcentajeCritico * 3.1416 + ' 314.16'"
+                            [attr.stroke-dashoffset]="-(porcentajeSeguro + porcentajeAdvertencia) * 3.1416"
+                            class="dashboard-chart-donut-segment-enter"
+                            [style.animation-delay]="'180ms'"
+                            [class.dashboard-chart-donut-segment-active]="nivelDistribucionHover === 'critico'"
+                            (mouseenter)="nivelDistribucionHover = 'critico'"
+                            (mouseleave)="nivelDistribucionHover = null"
+                            (focus)="nivelDistribucionHover = 'critico'"
+                            (blur)="nivelDistribucionHover = null"
+                            [attr.tabindex]="0"
+                            [attr.aria-label]="'Crítico: ' + eventosCriticos + ' eventos, ' + porcentajeCritico + '%'"></circle>
+                    </g>
+                  </svg>
+                  <div class="pointer-events-none absolute inset-7 grid place-content-center rounded-full bg-white text-center">
+                    <span class="text-2xl font-bold tracking-tight text-slate-900">{{ totalEventosClasificados }}</span>
+                    <span class="text-xs text-slate-500">eventos</span>
+                  </div>
+                  <div *ngIf="nivelDistribucionHover === 'seguro'"
+                       role="tooltip"
+                       class="pointer-events-none absolute bottom-full left-1/2 z-30 mb-2 min-w-max -translate-x-1/2 rounded-lg bg-slate-900 px-3 py-2 text-xs text-white shadow-lg">
+                    <p class="font-semibold">Reposo</p>
+                    <p class="mt-0.5 text-slate-300">{{ eventosSeguros }} {{ eventosSeguros === 1 ? 'evento' : 'eventos' }} · {{ porcentajeSeguro }}%</p>
+                  </div>
+                  <div *ngIf="nivelDistribucionHover === 'advertencia'"
+                       role="tooltip"
+                       class="pointer-events-none absolute bottom-full left-1/2 z-30 mb-2 min-w-max -translate-x-1/2 rounded-lg bg-slate-900 px-3 py-2 text-xs text-white shadow-lg">
+                    <p class="font-semibold">Advertencia</p>
+                    <p class="mt-0.5 text-slate-300">{{ eventosAdvertencia }} {{ eventosAdvertencia === 1 ? 'evento' : 'eventos' }} · {{ porcentajeAdvertencia }}%</p>
+                  </div>
+                  <div *ngIf="nivelDistribucionHover === 'critico'"
+                       role="tooltip"
+                       class="pointer-events-none absolute bottom-full left-1/2 z-30 mb-2 min-w-max -translate-x-1/2 rounded-lg bg-slate-900 px-3 py-2 text-xs text-white shadow-lg">
+                    <p class="font-semibold">Crítico</p>
+                    <p class="mt-0.5 text-slate-300">{{ eventosCriticos }} {{ eventosCriticos === 1 ? 'evento' : 'eventos' }} · {{ porcentajeCritico }}%</p>
+                  </div>
+                </div>
+                <ul class="min-w-36 space-y-3 text-xs">
+                  <li class="flex items-center justify-between gap-6">
+                    <span class="flex items-center gap-2 text-slate-700">
+                      <span class="h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
+                      Reposo
+                    </span>
+                    <span class="font-mono text-slate-900">{{ eventosSeguros }} · {{ porcentajeSeguro }}%</span>
+                  </li>
+                  <li class="flex items-center justify-between gap-6">
+                    <span class="flex items-center gap-2 text-slate-700">
+                      <span class="h-2.5 w-2.5 rounded-full bg-amber-500"></span>
+                      Advertencia
+                    </span>
+                    <span class="font-mono text-slate-900">{{ eventosAdvertencia }} · {{ porcentajeAdvertencia }}%</span>
+                  </li>
+                  <li class="flex items-center justify-between gap-6">
+                    <span class="flex items-center gap-2 text-slate-700">
+                      <span class="h-2.5 w-2.5 rounded-full bg-rose-500"></span>
+                      Crítico
+                    </span>
+                    <span class="font-mono text-slate-900">{{ eventosCriticos }} · {{ porcentajeCritico }}%</span>
+                  </li>
+                </ul>
+              </div>
+            </ng-container>
+          </div>
+
+          <footer class="mt-5 border-t border-slate-100 pt-3 text-xs text-slate-500">
+            Calculado sobre {{ totalEventosClasificados }} {{ totalEventosClasificados === 1 ? 'evento clasificado' : 'eventos clasificados' }}.
+          </footer>
+        </article>
+      </section>
+
+      <!-- ============ 4. HISTORIAL ============ -->
+      <section
+        aria-label="Historial de alertas"
+        class="overflow-hidden rounded-xl border border-slate-200 bg-white">
+        <header class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-4">
+          <div>
+            <h2 class="text-sm font-semibold text-slate-900">Historial de alertas</h2>
+            <p class="mt-0.5 text-xs text-slate-500">Eventos registrados en la base de datos.</p>
+          </div>
+
+          <div class="flex gap-1 text-xs" role="group" aria-label="Filtrar historial">
+            <button type="button" (click)="filtroNivel = 'todos'" [attr.aria-pressed]="filtroNivel === 'todos'"
+              class="rounded-lg px-3 py-1.5 cursor-pointer"
+              [ngClass]="filtroNivel === 'todos' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100'">Todas</button>
+            <button type="button" (click)="filtroNivel = 'advertencia'" [attr.aria-pressed]="filtroNivel === 'advertencia'"
+              class="rounded-lg px-3 py-1.5 cursor-pointer"
+              [ngClass]="filtroNivel === 'advertencia' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100'">Advertencias</button>
+            <button type="button" (click)="filtroNivel = 'critico'" [attr.aria-pressed]="filtroNivel === 'critico'"
+              class="rounded-lg px-3 py-1.5 cursor-pointer"
+              [ngClass]="filtroNivel === 'critico' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100'">Críticas</button>
+          </div>
+        </header>
+
+        <div class="overflow-x-auto">
+          <table class="w-full min-w-170 text-left text-xs">
+            <thead class="border-b border-slate-100 text-xs text-slate-500">
+              <tr>
+                <th scope="col" class="px-5 py-3 font-medium">Fecha</th>
+                <th scope="col" class="px-5 py-3 font-medium">Estado</th>
+                <th scope="col" class="px-5 py-3 font-medium">Mensaje</th>
+                <th scope="col" class="px-5 py-3 text-right font-medium">Duración</th>
+                <th scope="col" class="px-5 py-3 text-right font-medium">Intrusiones</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr
+                *ngFor="let alerta of historialFiltrado; trackBy: trackById"
+                class="hover:bg-slate-50">
+                <td class="whitespace-nowrap px-5 py-3 font-mono text-xs text-slate-500">
+                  {{ alerta.fecha_hora | date:'dd/MM/yyyy HH:mm:ss' }}
+                </td>
+                <td class="whitespace-nowrap px-5 py-3">
+                  <span class="inline-flex rounded-md px-2 py-0.5 text-xs font-medium" [ngClass]="getClaseEstado(alerta.codigo)">
+                    {{ getNombreEstado(alerta.codigo) }}
+                  </span>
+                </td>
+                <td class="max-w-xs truncate px-5 py-3 text-slate-800" [attr.title]="alerta.mensaje">{{ alerta.mensaje }}</td>
+                <td class="whitespace-nowrap px-5 py-3 text-right text-slate-500">{{ formatearDuracion(alerta.duracion_segundos) }}</td>
+                <td class="whitespace-nowrap px-5 py-3 text-right font-medium text-slate-900">{{ alerta.intrusiones }}</td>
+              </tr>
+
+              <tr *ngIf="historialFiltrado.length === 0">
+                <td colspan="5" class="px-5 py-14 text-center text-xs text-slate-400">
+                  {{ historialAlertasBD.length === 0 ? 'Sin alertas registradas.' : 'No hay alertas con este filtro.' }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <footer class="border-t border-slate-100 px-5 py-3 text-xs text-slate-500">
+          Mostrando {{ historialFiltrado.length }} de {{ historialAlertasBD.length }} registros
+        </footer>
+      </section>
+
+    </ng-container>
+  </div>
 </main>
+
+<main fallback class="flex-1 overflow-y-auto px-7 py-8" aria-hidden="true">
+  <div class="max-w-[1600px] animate-pulse space-y-8 motion-reduce:animate-none">
+    <div class="h-20 rounded-xl bg-slate-200"></div>
+    <div class="h-20 rounded-xl bg-slate-200"></div>
+    <div class="grid gap-6 lg:grid-cols-2">
+      <div *ngFor="let i of [1, 2, 3, 4]" class="h-72 rounded-xl bg-slate-200"></div>
+    </div>
+    <div class="h-64 rounded-xl bg-slate-200"></div>
+  </div>
+</main>
+</boneyard-skeleton>

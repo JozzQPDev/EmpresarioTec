@@ -10,8 +10,10 @@
     </p>
   </div>
 
-  <!-- Contenedor derecho: Fecha/Hora + Botón de Cerrar Sesión -->
-  <div class="flex items-center gap-5">
+  <!-- Menú de usuario, fecha y hora -->
+  <div class="flex items-center gap-3 sm:gap-5">
+    
+
     <!-- Fecha y Hora -->
     <div class="flex flex-col items-end">
       <div class="text-xs font-semibold text-slate-800 tracking-wide">
@@ -24,16 +26,55 @@
       </div>
     </div>
 
-    <!-- Separador vertical sutil -->
-    <div class="h-6 w-px bg-slate-200"></div>
+    <div *ngIf="usuarioActual" class="hidden h-7 w-px bg-slate-200 sm:block"></div>
 
-    <!-- Botón de Cerrar Sesión Minimalista -->
-    <button
-      (click)="cerrarSesion()"
-      class="flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all group"
-      title="Cerrar Sesión"
-    >
-      <i class="fa-solid fa-arrow-right-from-bracket text-xs transition-transform group-hover:-translate-x-0.5"></i>
-    </button>
+
+    <div *ngIf="usuarioActual as usuario" class="relative">
+      <button
+        type="button"
+        (click)="alternarMenuUsuario()"
+        [attr.aria-expanded]="menuUsuarioAbierto"
+        aria-haspopup="true"
+        aria-controls="menu-usuario"
+        [attr.aria-label]="'Menú de usuario: ' + (usuario.nombre || usuario.email)"
+        class="flex items-center gap-2 rounded-xl p-1.5 text-left transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
+        <span
+          class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-slate-900 text-xs font-semibold text-white"
+          aria-hidden="true">
+          {{ inicialesUsuario }}
+        </span>
+        <span class="hidden min-w-0 sm:block">
+          <span class="block max-w-40 truncate text-xs font-semibold text-slate-800">{{ usuario.nombre || usuario.email }}</span>
+          <span class="block text-[10px] text-slate-500">{{ usuario.rol }}</span>
+        </span>
+        <i class="fa-solid fa-chevron-down hidden text-[10px] text-slate-400 transition-transform sm:block"
+           [class.rotate-180]="menuUsuarioAbierto"
+           aria-hidden="true"></i>
+      </button>
+
+      <div
+        *ngIf="menuUsuarioAbierto"
+        id="menu-usuario"
+        role="menu"
+        aria-label="Opciones de usuario"
+        class="absolute right-0 top-full z-50 mt-2 w-72 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl">
+        <div class="border-b border-slate-100 px-4 py-3">
+          <p class="text-xs font-semibold text-slate-900">{{ usuario.nombre || 'Usuario' }}</p>
+          <p class="mt-1 truncate text-xs text-slate-500">{{ usuario.email }}</p>
+        </div>
+        <div class="p-1.5">
+          <button
+            type="button"
+            role="menuitem"
+            (click)="cerrarSesion()"
+            class="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-xs font-medium text-rose-600 transition-colors hover:bg-rose-50 focus-visible:bg-rose-50 focus-visible:outline-none">
+            <i class="fa-solid fa-arrow-right-from-bracket w-4 text-center" aria-hidden="true"></i>
+            Cerrar sesión
+          </button>
+        </div>
+      </div>
+    </div>
+
+
   </div>
 </header>

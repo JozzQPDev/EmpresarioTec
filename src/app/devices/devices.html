@@ -1,5 +1,5 @@
 <main class="flex-1 p-6 md:p-10 space-y-6 overflow-y-auto mt-2">
-  
+
   <!-- Alerta Superior Flotante -->
   <div *ngIf="mensajeAlerta"
        role="status"
@@ -9,142 +9,107 @@
     <span>{{ mensajeAlerta }}</span>
   </div>
 
-  <!-- Modal de Creación / Edición Optimizado -->
-  <div *ngIf="mostrarModal" class="fixed inset-0 w-full h-full z-50 flex items-center justify-center bg-slate-950/50 backdrop-blur-xs p-4 overflow-y-auto">
+  <!-- Panel lateral: crear / editar -->
+  <div *ngIf="mostrarModal" class="fixed inset-0 z-50 flex h-dvh min-h-screen justify-end bg-slate-900/20">
+    <div class="absolute inset-0" (click)="!procesando && cerrarModal()"></div>
+
     <section role="dialog" aria-modal="true" aria-labelledby="device-form-title"
-      class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-lg flex flex-col my-auto overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-      
-      <!-- Encabezado del Modal -->
-      <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/70 shrink-0">
-        <div class="flex items-center gap-3">
-          <div>
-            <h2 id="device-form-title" class="text-xs font-bold text-slate-900 tracking-tight">
-              {{ editando ? 'Editar Nodo de Hardware' : 'Registrar Dispositivo' }}
-            </h2>
-            <p class="text-[11px] text-slate-500">Parámetros de telemetría y conexión física.</p>
-          </div>
-        </div>
+      class="relative flex h-dvh w-full max-w-md flex-col bg-white shadow-2xl">
 
-        <button type="button" (click)="cerrarModal()" [disabled]="procesando"
-          aria-label="Cerrar formulario"
-          class="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors disabled:opacity-50 cursor-pointer">
-          <i class="fa-solid fa-xmark text-sm"></i>
+      <header class="flex items-center justify-between px-6 py-5">
+        <h2 id="device-form-title" class="text-base font-semibold text-slate-900">
+          {{ editando ? 'Editar dispositivo' : 'Nuevo dispositivo' }}
+        </h2>
+        <button type="button" (click)="cerrarModal()" [disabled]="procesando" aria-label="Cerrar"
+          class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-900 disabled:opacity-50 cursor-pointer">
+          <i class="fa-solid fa-xmark"></i>
         </button>
-      </div>
+      </header>
 
-      <!-- Formulario -->
-      <form #deviceForm="ngForm" (ngSubmit)="guardarDispositivo()" class="p-6 space-y-4 overflow-y-auto max-h-[75vh]">
-        
-        <!-- Bloque 1: Identificación -->
-        <div class="space-y-3">
-          <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Identificación</h3>
-          
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div class="sm:col-span-2">
-              <label for="device-name" class="block text-xs font-medium text-slate-700 mb-1">Nombre *</label>
-              <input id="device-name" type="text" [(ngModel)]="dispositivoForm.nombre" name="nombre" required
-                placeholder="Ej. Sensor Infrarrojo Barrera 1"
-                class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs text-slate-900 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900 transition-all">
-            </div>
+      <form #deviceForm="ngForm" (ngSubmit)="guardarDispositivo()" class="flex min-h-0 flex-1 flex-col">
+        <div class="flex-1 space-y-5 overflow-y-auto px-6 pb-6">
 
-            <div>
-              <label for="device-type" class="block text-xs font-medium text-slate-700 mb-1">Tipo</label>
-              <input id="device-type" type="text" [(ngModel)]="dispositivoForm.tipo" name="tipo"
-                placeholder="Sensor, Actuador..."
-                class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs text-slate-900 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900 transition-all">
-            </div>
-
-            <div>
-              <label for="device-location" class="block text-xs font-medium text-slate-700 mb-1">Ubicación</label>
-              <input id="device-location" type="text" [(ngModel)]="dispositivoForm.ubicacion" name="ubicacion"
-                placeholder="Ej. Perimetral Norte"
-                class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs text-slate-900 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900 transition-all">
-            </div>
-          </div>
-        </div>
-
-        <!-- Bloque 2: Interfaz -->
-        <div class="space-y-3 pt-1">
-          <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Interfaz de Hardware</h3>
-          
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label for="device-pin" class="block text-xs font-medium text-slate-700 mb-1">Pin de Conexión</label>
-              <input id="device-pin" type="text" [(ngModel)]="dispositivoForm.pin_conexion" name="pin_conexion"
-                placeholder="Ej. Digital 7"
-                class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-mono font-medium text-slate-900 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900 transition-all">
-            </div>
-
-            <div>
-              <label for="device-port" class="block text-xs font-medium text-slate-700 mb-1">Puerto COM</label>
-              <input id="device-port" type="text" [(ngModel)]="dispositivoForm.puerto_com" name="puerto_com"
-                placeholder="Ej. COM4"
-                class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-mono font-medium text-slate-900 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900 transition-all">
-            </div>
-          </div>
-        </div>
-
-        <!-- Bloque 3: Carga de Archivo Imagen -->
-        <div class="space-y-2 pt-1">
-          <label class="block text-xs font-medium text-slate-700">Imagen del Dispositivo (Storage)</label>
-          
-          <div class="p-3 border border-dashed border-slate-200 rounded-xl bg-slate-50/60 flex items-center gap-3">
-            <div class="w-12 h-12 rounded-lg shrink-0 border border-slate-200 bg-white p-1 flex items-center justify-center overflow-hidden">
-              <img *ngIf="previewImagenUrl || dispositivoForm.imagen_url" 
-                   [src]="previewImagenUrl || dispositivoForm.imagen_url" 
-                   alt="Preview" 
-                   class="max-w-full max-h-full object-contain" />
-              <i *ngIf="!previewImagenUrl && !dispositivoForm.imagen_url" class="fa-solid fa-image text-slate-300 text-base"></i>
-            </div>
-
-            <div class="flex-1 min-w-0 space-y-0.5">
-              <input 
-                id="device-image-file" 
-                type="file" 
-                (change)="onFileSelected($event)"
-                accept="image/png, image/jpeg, image/webp"
-                class="block w-full text-[11px] text-slate-500 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[11px] file:font-medium file:bg-slate-900 file:text-white hover:file:bg-slate-800 cursor-pointer">
-              <p class="text-[10px] text-slate-400">PNG o JPG con transparencia.</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Bloque 4: Descripción y Estado -->
-        <div class="space-y-3 pt-1">
           <div>
-            <label for="device-description" class="block text-xs font-medium text-slate-700 mb-1">Descripción técnica</label>
-            <textarea id="device-description" [(ngModel)]="dispositivoForm.descripcion_tecnica" name="descripcion_tecnica"
-              rows="2" placeholder="Detalle técnico de operación..."
-              class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs text-slate-900 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900 transition-all"></textarea>
+            <label for="device-name" class="mb-1 block text-xs text-slate-500">Nombre</label>
+            <input id="device-name" type="text" [(ngModel)]="dispositivoForm.nombre" name="nombre" required
+              placeholder="Sensor infrarrojo barrera 1"
+              class="w-full border-0 border-b border-slate-200 bg-transparent px-0 py-2 text-sm text-slate-900 placeholder:text-slate-300 focus:border-slate-900 focus:outline-none focus:ring-0">
           </div>
 
-          <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50/70 border border-slate-200/80">
+          <div class="grid grid-cols-2 gap-5">
             <div>
-              <span class="block text-xs font-medium text-slate-800">Nodo Activo</span>
-              <span class="block text-[10px] text-slate-400">Habilitar telemetría en tiempo real</span>
+              <label for="device-type" class="mb-1 block text-xs text-slate-500">Tipo</label>
+              <input id="device-type" type="text" [(ngModel)]="dispositivoForm.tipo" name="tipo"
+                placeholder="Sensor"
+                class="w-full border-0 border-b border-slate-200 bg-transparent px-0 py-2 text-sm text-slate-900 placeholder:text-slate-300 focus:border-slate-900 focus:outline-none focus:ring-0">
             </div>
-            
-            <label for="activoToggle" class="relative inline-flex items-center cursor-pointer select-none">
-              <input id="activoToggle" type="checkbox" [(ngModel)]="dispositivoForm.activo" name="activo" class="sr-only peer">
-              <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-slate-900"></div>
-            </label>
+            <div>
+              <label for="device-location" class="mb-1 block text-xs text-slate-500">Ubicación</label>
+              <input id="device-location" type="text" [(ngModel)]="dispositivoForm.ubicacion" name="ubicacion"
+                placeholder="Perimetral norte"
+                class="w-full border-0 border-b border-slate-200 bg-transparent px-0 py-2 text-sm text-slate-900 placeholder:text-slate-300 focus:border-slate-900 focus:outline-none focus:ring-0">
+            </div>
+            <div>
+              <label for="device-pin" class="mb-1 block text-xs text-slate-500">Pin</label>
+              <input id="device-pin" type="text" [(ngModel)]="dispositivoForm.pin_conexion" name="pin_conexion"
+                placeholder="Digital 7"
+                class="w-full border-0 border-b border-slate-200 bg-transparent px-0 py-2 font-mono text-sm text-slate-900 placeholder:text-slate-300 focus:border-slate-900 focus:outline-none focus:ring-0">
+            </div>
+            <div>
+              <label for="device-port" class="mb-1 block text-xs text-slate-500">Puerto COM</label>
+              <input id="device-port" type="text" [(ngModel)]="dispositivoForm.puerto_com" name="puerto_com"
+                placeholder="COM4"
+                class="w-full border-0 border-b border-slate-200 bg-transparent px-0 py-2 font-mono text-sm text-slate-900 placeholder:text-slate-300 focus:border-slate-900 focus:outline-none focus:ring-0">
+            </div>
           </div>
+
+          <div>
+            <label for="device-description" class="mb-1 block text-xs text-slate-500">Descripción</label>
+            <textarea id="device-description" [(ngModel)]="dispositivoForm.descripcion_tecnica" name="descripcion_tecnica"
+              rows="3" placeholder="Cómo funciona y para qué se usa"
+              class="w-full resize-none border-0 border-b border-slate-200 bg-transparent px-0 py-2 text-sm text-slate-900 placeholder:text-slate-300 focus:border-slate-900 focus:outline-none focus:ring-0"></textarea>
+          </div>
+
+          <div>
+            <span class="mb-2 block text-xs text-slate-500">Imagen</span>
+            <div class="flex items-center gap-4">
+              <div class="flex h-25 w-24 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-slate-50">
+                <img *ngIf="previewImagenUrl || dispositivoForm.imagen_url"
+                     [src]="previewImagenUrl || dispositivoForm.imagen_url" alt="Vista previa"
+                     class="max-h-full max-w-full object-contain p-1" />
+                <i *ngIf="!previewImagenUrl && !dispositivoForm.imagen_url" class="fa-solid fa-image text-slate-300"></i>
+              </div>
+              <input id="device-image-file" type="file" (change)="onFileSelected($event)"
+                accept="image/png, image/jpeg, image/webp"
+                class="block w-full text-xs text-slate-500 file:mr-3 file:cursor-pointer file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-1.5 file:text-xs file:text-slate-700 hover:file:bg-slate-200 cursor-pointer">
+            </div>
+            <p class="mt-2 text-xs text-slate-400">PNG, JPG o WebP. Se recomienda fondo transparente.</p>
+          </div>
+
+          <label for="activoToggle" class="flex cursor-pointer select-none items-center justify-between">
+            <span>
+              <span class="block text-sm text-slate-900">Activo</span>
+              <span class="block text-xs text-slate-500">Recibe telemetría en tiempo real.</span>
+            </span>
+            <span class="relative inline-flex items-center">
+              <input id="activoToggle" type="checkbox" [(ngModel)]="dispositivoForm.activo" name="activo" class="peer sr-only">
+              <span class="h-5 w-9 rounded-full bg-slate-200 transition-colors peer-checked:bg-slate-900 peer-focus-visible:ring-2 peer-focus-visible:ring-slate-400"></span>
+              <span class="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white transition-transform peer-checked:translate-x-4"></span>
+            </span>
+          </label>
         </div>
 
-        <!-- Botones de Acción del Modal -->
-        <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+        <footer class="flex items-center justify-end gap-2 border-t border-slate-100 px-6 py-4">
           <button type="button" (click)="cerrarModal()" [disabled]="procesando"
-            class="px-3.5 py-2 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors disabled:opacity-50 cursor-pointer">
+            class="rounded-lg px-3.5 py-2 text-sm text-slate-600 hover:bg-slate-100 disabled:opacity-50 cursor-pointer">
             Cancelar
           </button>
-          
           <button type="submit" [disabled]="!deviceForm.valid || procesando"
-            class="px-4 py-2 text-xs font-medium text-white bg-slate-900 hover:bg-slate-800 rounded-xl shadow-xs transition-colors disabled:opacity-50 flex items-center gap-2 cursor-pointer">
-            <i *ngIf="procesando" class="fa-solid fa-spinner animate-spin"></i>
-            <span>{{ editando ? 'Guardar Cambios' : 'Registrar Nodo' }}</span>
+            class="flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm text-white hover:bg-slate-700 disabled:opacity-40 cursor-pointer">
+            <i *ngIf="procesando" class="fa-solid fa-spinner animate-spin text-xs"></i>
+            <span>{{ editando ? 'Guardar cambios' : 'Registrar' }}</span>
           </button>
-        </div>
-
+        </footer>
       </form>
     </section>
   </div>
@@ -212,39 +177,74 @@
     <article
       *ngFor="let dispositivo of dispositivos"
       [ngClass]="{
-        'lg:col-span-3 bg-slate-900 text-white border-slate-800 shadow-lg': dispositivo.id === 1,
-        'lg:col-span-1 bg-white border-slate-200/80 text-slate-900 shadow-xs': dispositivo.id !== 1
+        'lg:col-span-3 bg-slate-900 text-white border-slate-800 shadow-lg': esDispositivoPrincipal(dispositivo),
+        'lg:col-span-1 bg-white border-slate-200/80 text-slate-900 shadow-xs': !esDispositivoPrincipal(dispositivo)
       }"
       class="rounded-2xl p-5 border transition-all duration-200 flex flex-col justify-between">
       
-      <!-- CASO ESPECIAL: TARJETA PRINCIPAL (ID 1) -->
-      <ng-container *ngIf="dispositivo.id === 1; else tarjetaNormal">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+      <!-- CASO ESPECIAL: DISPOSITIVO PRINCIPAL -->
+      <ng-container *ngIf="esDispositivoPrincipal(dispositivo); else tarjetaNormal">
+        <div class="flex flex-col md:flex-row justify-between items-stretch gap-6">
           
-          <div class="space-y-3 flex-1 min-w-0">
-            <div class="flex items-center gap-2">
-              <span class="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-slate-800 text-slate-300 border border-slate-700">
-                CORE CENTRAL
-              </span>
-              <span class="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                Activo
-              </span>
-            </div>
+         <!-- COLUMNA IZQUIERDA: Textos y Controles -->
+         <div class="flex flex-col justify-between h-full space-y-4 flex-1 min-w-0">
             
-            <h3 class="text-sm font-bold text-white tracking-tight">
-              <i class="fa-solid fa-microchip mr-1.5 text-slate-400"></i>{{ dispositivo.nombre }}
-            </h3>
-            
-            <p class="text-xs text-slate-400">
-              {{ dispositivo.ubicacion || 'Panel Central / Sistema' }}
-            </p>
+            <!-- Bloque Superior (Título, Badges y Ubicación) -->
+            <div class="space-y-3">
+              <div class="flex items-center gap-2">
+                <span class="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-slate-800 text-slate-300 border border-slate-700">
+                  CORE CENTRAL
+                </span>
+                <span class="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                  Activo
+                </span>
+              </div>
 
-            <p class="text-xs p-3 rounded-xl bg-slate-800/60 text-slate-300 border border-slate-700/60 leading-relaxed">
-              {{ dispositivo.descripcion_tecnica || 'Controlador central de la máquina de estados y telemetría serial.' }}
-            </p>
+              <h3 class="text-sm font-bold text-white tracking-tight">
+                <i class="fa-solid fa-microchip mr-1.5 text-slate-400"></i>{{ dispositivo.nombre }}
+              </h3>
+
+              <p class="text-xs text-slate-400">
+                {{ dispositivo.ubicacion || 'Panel Central / Sistema' }}
+              </p>
+
+              <!-- Descripción técnica -->
+              <p class="text-xs p-3 rounded-xl bg-slate-800/60 text-slate-300 border border-slate-700/60 leading-relaxed">
+                {{ dispositivo.descripcion_tecnica || 'Controlador central de la máquina de estados y telemetría serial.' }}
+              </p>
+            </div>
+
+            <!-- Bloque Inferior (Pines, Puertos y Botones - Empujado hacia abajo por el flex) -->
+            <div class="pt-4 border-t border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+              <div class="flex items-center gap-6">
+                <div>
+                  <span class="text-[10px] text-slate-500 font-medium block mb-1">PIN / CONEXIÓN</span>
+                  <span class="font-mono font-bold text-slate-200 text-[11px]">
+                    {{ dispositivo.pin_conexion || 'Placa Mega 2560' }}
+                  </span>
+                </div>
+                <div>
+                  <span class="text-[10px] text-slate-500 font-medium block mb-1">PUERTO COM</span>
+                  <span class="font-mono font-bold text-slate-300 text-[11px]">{{ dispositivo.puerto_com || 'COM4' }}</span>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-1.5">
+                <button type="button" (click)="editarDispositivo(dispositivo)" class="px-2.5 py-1.5 rounded-xl font-medium text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors flex items-center gap-1 cursor-pointer border border-slate-700">
+                  <i class="fa-solid fa-pen text-[10px]"></i>
+                  <span>Editar</span>
+                </button>
+                <button type="button" (click)="abrirConfirmacionEliminar(dispositivo)" class="px-2.5 py-1.5 rounded-xl font-medium text-xs bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 transition-colors flex items-center gap-1 cursor-pointer border border-rose-500/20">
+                  <i class="fa-solid fa-trash text-[10px]"></i>
+                  <span>Eliminar</span>
+                </button>
+              </div>
+            </div>
+
           </div>
 
-          <div class="w-full md:w-85 h-52 rounded-xl shrink-0 flex items-center justify-center shadow-inner relative overflow-hidden group self-center md:self-center">
+          <!-- COLUMNA DERECHA: Imagen del Microcontrolador -->
+          <div class="w-full md:w-95 h-55 rounded-xl shrink-0 flex items-center justify-center shadow-inner relative overflow-hidden group self-center md:self-center">
             <img 
               *ngIf="dispositivo.imagen_url" 
               [src]="dispositivo.imagen_url" 
@@ -253,47 +253,25 @@
             />
             <i *ngIf="!dispositivo.imagen_url" class="fa-solid fa-microchip text-slate-600 text-3xl"></i>
           </div>
-        </div>
 
-        <div class="pt-4 mt-5 border-t border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
-          <div class="flex items-center gap-6">
-            <div>
-              <span class="text-[10px] text-slate-500 font-medium block mb-1">PIN / CONEXIÓN</span>
-              <span class="font-mono font-bold text-slate-200 bg-slate-800 px-2.5 py-1 rounded text-[11px] border border-slate-700">
-                {{ dispositivo.pin_conexion || 'Placa Mega 2560' }}
-              </span>
-            </div>
-            <div>
-              <span class="text-[10px] text-slate-500 font-medium block mb-1">PUERTO COM</span>
-              <span class="font-mono font-bold text-slate-300 text-[11px]">{{ dispositivo.puerto_com || 'COM4' }}</span>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-1.5">
-            <button type="button" (click)="editarDispositivo(dispositivo)" class="px-2.5 py-1.5 rounded-xl font-medium text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors flex items-center gap-1 cursor-pointer border border-slate-700">
-              <i class="fa-solid fa-pen text-[10px]"></i>
-              <span>Editar</span>
-            </button>
-            <button type="button" (click)="abrirConfirmacionEliminar(dispositivo)" class="px-2.5 py-1.5 rounded-xl font-medium text-xs bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 transition-colors flex items-center gap-1 cursor-pointer border border-rose-500/20">
-              <i class="fa-solid fa-trash text-[10px]"></i>
-              <span>Eliminar</span>
-            </button>
-          </div>
         </div>
       </ng-container>
 
       <!-- TARJETAS NORMALES -->
+     <!-- TARJETAS NORMALES -->
       <ng-template #tarjetaNormal>
-        <div class="space-y-3 flex-1 flex flex-col justify-between">
-          <div class="space-y-2.5">
+        <div class="h-full flex flex-col justify-between space-y-4">
+
+          <!-- Bloque Superior (Cabecera, Imagen, Ubicación y Descripción) -->
+          <div class="space-y-3">
             <div class="flex items-start justify-between gap-3">
-              <div class="space-y-1 flex-1 min-w-0">
-                <div class="flex items-center gap-2">
-                  <span class="inline-block px-2.5 py-0.5 rounded-md text-[10px] font-semibold mb-1 bg-slate-100 text-slate-700 border border-slate-200">
+              <div class="space-y-1.5 flex-1 min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="inline-block px-2 py-0.5 rounded-md text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
                     {{ dispositivo.tipo || 'Sensor' }}
                   </span>
-                  <span class="px-2 py-0.5 rounded-md text-[10px] font-semibold mb-1"
-                    [ngClass]="dispositivo.activo ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-slate-100 text-slate-500'">
+                  <span class="px-2 py-0.5 rounded-md text-[10px] font-semibold"
+                        [ngClass]="dispositivo.activo ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60' : 'bg-slate-100 text-slate-500 border border-slate-200'">
                     {{ dispositivo.activo ? 'Activo' : 'Inactivo' }}
                   </span>
                 </div>
@@ -303,20 +281,21 @@
                 </h4>
               </div>
 
-              <div class="w-25 h-20 shrink-0 flex items-center justify-center relative overflow-hidden group">
+              <!-- Imagen / Icono del Dispositivo -->
+              <div class="w-20 h-16 rounded-xl bg-slate-50 border border-slate-200/60 shrink-0 flex items-center justify-center relative overflow-hidden group p-1">
                 <img 
                   *ngIf="dispositivo.imagen_url" 
                   [src]="dispositivo.imagen_url" 
                   [alt]="dispositivo.nombre"
-                  class="max-w-full max-h-full object-contain filter group-hover:scale-102 transition-transform duration-300" 
+                  class="max-w-full max-h-full object-contain filter group-hover:scale-105 transition-transform duration-300"
                 />
-                <i *ngIf="!dispositivo.imagen_url" class="fa-solid fa-microchip text-slate-400 text-lg"></i>
+                <i *ngIf="!dispositivo.imagen_url" class="fa-solid fa-microchip text-slate-400 text-base"></i>
               </div>
             </div>
             
             <p class="text-[11px] text-slate-500 flex items-center gap-1.5">
               <i class="fa-solid fa-location-dot text-slate-400"></i> 
-              <span>{{ dispositivo.ubicacion || 'Panel de Control' }}</span>
+              <span class="truncate">{{ dispositivo.ubicacion || 'Panel de Control' }}</span>
             </p>
 
             <p class="text-[11px] p-2.5 rounded-xl leading-relaxed bg-slate-50/60 text-slate-600 border border-slate-100">
@@ -324,7 +303,8 @@
             </p>
           </div>
 
-          <div class="pt-3 mt-2 border-t border-slate-100 text-xs space-y-2.5">
+          <!-- Bloque Inferior (Pines, Puertos y Botones - Empujado al fondo) -->
+          <div class="pt-3 border-t border-slate-100 text-xs space-y-2.5">
             <div class="flex items-center justify-between gap-3">
               <span class="text-slate-400 font-medium text-[11px]">Pin / Conexión:</span>
               <span class="font-mono font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-800 text-[11px] border border-slate-200">
@@ -338,17 +318,18 @@
               </span>
 
               <div class="flex items-center gap-1.5">
-                <button type="button" (click)="editarDispositivo(dispositivo)" class="px-2.5 py-1.5 rounded-xl font-medium text-[11px] text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors flex items-center gap-1 cursor-pointer border">
+                <button type="button" (click)="editarDispositivo(dispositivo)" class="px-2 py-1.5 rounded-xl font-medium text-[11px] text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors flex items-center gap-1 cursor-pointer border border-slate-200">
                   <i class="fa-solid fa-pen text-[9px]"></i>
                   <span>Editar</span>
                 </button>
-                <button type="button" (click)="abrirConfirmacionEliminar(dispositivo)" class="px-2.5 py-1.5 rounded-xl font-medium text-[11px] bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors flex items-center gap-1 cursor-pointer border">
+                <button type="button" (click)="abrirConfirmacionEliminar(dispositivo)" class="px-2 py-1.5 rounded-xl font-medium text-[11px] bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors flex items-center gap-1 cursor-pointer border border-rose-200/60">
                   <i class="fa-solid fa-trash text-[9px]"></i>
                   <span>Eliminar</span>
                 </button>
               </div>
             </div>
           </div>
+
         </div>
       </ng-template>
 

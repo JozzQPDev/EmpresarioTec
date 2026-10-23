@@ -60,6 +60,7 @@ describe('Devices', () => {
     component.abrirModalCrear();
     component.dispositivoForm.nombre = 'Sensor nuevo';
     component.guardarDispositivo();
+    const cargarSpy = spyOn(component, 'cargarDispositivos');
 
     expect(component.accionConfirmacion).toBe('create');
     expect(dispositivosCreados).toEqual([]);
@@ -68,6 +69,7 @@ describe('Devices', () => {
 
     expect(dispositivosCreados).toHaveLength(1);
     expect(dispositivosCreados[0].nombre).toBe('Sensor nuevo');
+    expect(cargarSpy).toHaveBeenCalledWith(true);
   });
 
   it('requires confirmation before updating a device', () => {
@@ -80,6 +82,24 @@ describe('Devices', () => {
     component.confirmarAccion();
 
     expect(dispositivosActualizados).toEqual([7]);
+  });
+
+  it('closes the edit confirmation when the device has no id', () => {
+    spyOn(component, 'mostrarAlerta');
+    component.editando = true;
+    component.dispositivoForm = { nombre: 'Sensor sin identificador' };
+    component.accionConfirmacion = 'edit';
+
+    component.confirmarAccion();
+
+    expect(component.accionConfirmacion).toBeNull();
+    expect(dispositivosActualizados).toEqual([]);
+  });
+
+  it('uses es_principal when identifying the main device and keeps the legacy id fallback', () => {
+    expect(component.esDispositivoPrincipal({ id: 7, nombre: 'Principal', es_principal: true })).toBe(true);
+    expect(component.esDispositivoPrincipal({ id: 1, nombre: 'Legacy principal' })).toBe(true);
+    expect(component.esDispositivoPrincipal({ id: 7, nombre: 'Normal', es_principal: false })).toBe(false);
   });
 
   it('only deletes a device after its exact name is confirmed', () => {

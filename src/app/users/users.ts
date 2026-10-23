@@ -25,7 +25,7 @@ export class UsersComponent implements OnInit {
     activo: true
   };
 
-  cargando: boolean = true; // 👈 Estado para controlar el esqueleto de carga
+  cargando: boolean = true; // Estado para controlar el esqueleto de carga
   editando: boolean = false;
   usuarioIdEditando?: number;
   mostrarModal: boolean = false;

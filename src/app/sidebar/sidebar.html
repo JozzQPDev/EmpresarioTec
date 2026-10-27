@@ -62,6 +62,22 @@
         }
       </div>
 
+      <div class="space-y-1">
+        <p class="px-3 py-1 text-[10px] font-semibold tracking-wider text-slate-500 uppercase">Ajustes</p>
+
+        @for (item of menuItems; track item.ruta) {
+          @if (item.categoria === 'Ajustes') {
+            <a [routerLink]="item.ruta"
+               (click)="seleccionarSeccion(item.clave)"
+               routerLinkActive="text-white bg-slate-800/80 font-medium"
+               class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-normal text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 transition-colors">
+              <i [class]="item.icono + ' text-[11px] w-4 text-center text-slate-400'"></i>
+              {{ item.titulo }}
+            </a>
+          }
+        }
+      </div>
+
     </nav>
   </div>
 

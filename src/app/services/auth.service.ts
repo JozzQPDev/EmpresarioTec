@@ -1,7 +1,13 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
-import { LoginRequest, LoginResponse, SesionUsuario } from '../models/intrusion.model';
+import {
+  LoginRequest,
+  LoginResponse,
+  PerfilActualizacionRequest,
+  PerfilActualizacionResponse,
+  SesionUsuario
+} from '../models/intrusion.model';
 
 @Injectable({
   providedIn: 'root'
@@ -20,9 +26,25 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${this.apiUrl}/login`, credentials).pipe(
       tap(response => {
         if (response && response.usuario) {
-          // Guardamos los datos de SesionUsuario en localStorage
           localStorage.setItem('usuario', JSON.stringify(response.usuario));
+          sessionStorage.setItem('access_token', response.token);
         }
+      })
+    );
+  }
+
+  actualizarMiPerfil(datos: PerfilActualizacionRequest): Observable<PerfilActualizacionResponse> {
+    const token = sessionStorage.getItem('access_token');
+    const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
+
+    return this.http.put<PerfilActualizacionResponse>(
+      `${this.apiUrl}/mi-perfil`,
+      datos,
+      headers ? { headers } : {}
+    ).pipe(
+      tap(response => {
+        localStorage.setItem('usuario', JSON.stringify(response.usuario));
+        sessionStorage.setItem('access_token', response.token);
       })
     );
   }
@@ -32,6 +54,7 @@ export class AuthService {
    */
   logout(): void {
     localStorage.removeItem('usuario');
+    sessionStorage.removeItem('access_token');
   }
 
   /**

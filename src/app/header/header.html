@@ -63,6 +63,14 @@
           <p class="mt-1 truncate text-xs text-slate-500">{{ usuario.email }}</p>
         </div>
         <div class="p-1.5">
+          <a
+            routerLink="/settings"
+            role="menuitem"
+            (click)="cerrarMenuUsuario()"
+            class="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-xs font-medium text-slate-700 transition-colors hover:bg-slate-100 focus-visible:bg-slate-100 focus-visible:outline-none">
+            <i class="fa-solid fa-gear w-4 text-center" aria-hidden="true"></i>
+            Configuraciones
+          </a>
           <button
             type="button"
             role="menuitem"

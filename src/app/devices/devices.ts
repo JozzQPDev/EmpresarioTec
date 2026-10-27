@@ -5,12 +5,13 @@ import { DeviceService } from '../services/device.service';
 import { Dispositivo } from '../models/intrusion.model';
 import { HeaderService } from '../services/header.service';
 import { ConfirmationDialogComponent } from '../shared/confirmation-dialog/confirmation-dialog';
+import { FeedbackAlertComponent } from '../shared/feedback-alert/feedback-alert';
 
 type DeviceAction = 'create' | 'edit' | 'delete';
 
 @Component({
   standalone: true,
-  imports: [CommonModule, FormsModule, ConfirmationDialogComponent],
+  imports: [CommonModule, FormsModule, ConfirmationDialogComponent, FeedbackAlertComponent],
   selector: 'app-devices',
   styleUrl: './devices.css',
   templateUrl: './devices.html',

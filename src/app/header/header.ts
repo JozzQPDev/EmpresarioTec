@@ -1,6 +1,6 @@
 import { Component, ElementRef, HostListener, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { HeaderService } from '../services/header.service';
 import { AuthService } from '../services/auth.service';
 import { Subscription } from 'rxjs';
@@ -9,7 +9,7 @@ import { SesionUsuario } from '../models/intrusion.model';
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './header.html'
 })
 export class HeaderComponent implements OnInit, OnDestroy {

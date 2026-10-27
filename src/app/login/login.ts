@@ -5,11 +5,12 @@ import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../services/auth.service'; // Ajusta los puntos según la ubicación de tu carpeta services
 import { LoginResponse } from '../models/intrusion.model';
+import { FeedbackAlertComponent } from '../shared/feedback-alert/feedback-alert';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FeedbackAlertComponent],
   templateUrl: './login.html',
   styleUrls: ['./login.css']
 })

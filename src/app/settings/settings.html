@@ -1,0 +1,305 @@
+<boneyard-skeleton
+  class="block"
+  name="settings"
+  [loading]="cargandoUmbrales"
+  [initialBones]="bonesCarga"
+  color="#cbd5e1"
+  darkColor="#475569"
+  animate="pulse"
+  select="viewport">
+<main class="relative mt-2 space-y-6 p-6 md:p-10">
+  <div class="mx-auto max-w-[1600px] space-y-6">
+    
+    <!-- Alertas Flotantes (Toast) -->
+    <app-feedback-alert [message]="mensajeExito" type="success" variant="toast-bottom"
+                        (dismissed)="mensajeExito = ''"></app-feedback-alert>
+    <app-feedback-alert [message]="error" type="error" variant="toast-bottom"
+                        (dismissed)="error = ''"></app-feedback-alert>
+
+    <!-- Contenedor de la Cuadrícula Principal (Sidebar + Contenido) -->
+    <div class="grid items-start gap-6 lg:grid-cols-[13rem_minmax(0,1fr)] lg:gap-8">
+      
+      <!-- Menú Lateral de Navegación (Ajustes) -->
+      <aside class="sticky top-0 z-30 mx-6 px-4 py-2 sm:px-6 lg:top-12 lg:mx-0 lg:border-r lg:border-slate-200 lg:pl-4 lg:pr-0">
+        <p class="hidden pb-5 pt-1 text-[11px] font-semibold uppercase tracking-wider text-slate-400 lg:block">
+          Ajustes
+        </p>
+        <nav aria-label="Secciones de configuración"
+             class="flex gap-2 overflow-x-auto lg:flex-col lg:overflow-visible">
+          
+              <!-- Botón Perfil -->
+            <button type="button" (click)="seleccionarSeccion('perfil')"
+                    [attr.aria-current]="seccionActiva === 'perfil' ? 'page' : null"
+                    class="relative inline-flex shrink-0 items-center gap-2.5 rounded-lg pl-6 pr-3 py-2.5 text-left text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700 lg:w-full overflow-hidden"
+                    [ngClass]="seccionActiva === 'perfil' ? 'bg-slate-100 text-slate-900 font-semibold' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'">
+              <span *ngIf="seccionActiva === 'perfil'" class="absolute left-0 top-1 bottom-1 w-1 bg-slate-900 rounded-r"></span>
+              <i class="fa-regular fa-user w-4 text-center text-slate-400" aria-hidden="true"></i>
+              Perfil
+            </button>
+
+            <!-- Botón Apariencia -->
+            <button type="button" (click)="seleccionarSeccion('apariencia')"
+                    [attr.aria-current]="seccionActiva === 'apariencia' ? 'page' : null"
+                    class="relative inline-flex shrink-0 items-center gap-2.5 rounded-lg pl-6 pr-3 py-2.5 text-left text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700 lg:w-full overflow-hidden"
+                    [ngClass]="seccionActiva === 'apariencia' ? 'bg-slate-100 text-slate-900 font-semibold' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'">
+              <span *ngIf="seccionActiva === 'apariencia'" class="absolute left-0 top-1 bottom-1 w-1 bg-slate-900 rounded-r"></span>
+              <i class="fa-solid fa-palette w-4 text-center text-slate-400" aria-hidden="true"></i>
+              Apariencia
+            </button>
+
+            <!-- Botón Sistema -->
+            <button type="button" (click)="seleccionarSeccion('sistema')"
+                    [attr.aria-current]="seccionActiva === 'sistema' ? 'page' : null"
+                    class="relative inline-flex shrink-0 items-center gap-2.5 rounded-lg pl-6 pr-3 py-2.5 text-left text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700 lg:w-full overflow-hidden"
+                    [ngClass]="seccionActiva === 'sistema' ? 'bg-slate-100 text-slate-900 font-semibold' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'">
+              <span *ngIf="seccionActiva === 'sistema'" class="absolute left-0 top-1 bottom-1 w-1 bg-slate-900 rounded-r"></span>
+              <i class="fa-solid fa-sliders w-4 text-center text-slate-400" aria-hidden="true"></i>
+              Sistema
+            </button>
+
+        </nav>
+      </aside>
+
+      <!-- Zona de Contenido Dinámico -->
+      <div class="min-w-0 px-5 space-y-7">
+        
+        <!-- Sección 1: Perfil de Usuario -->
+        <section *ngIf="seccionActiva === 'perfil'" id="profile-settings" aria-labelledby="profile-settings-title" class="rounded-xl border border-slate-200 bg-white p-5 sm:p-6">
+          <div class="flex items-start gap-4">
+            <span class="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-slate-900 text-sm font-semibold text-white"
+                  aria-hidden="true">
+              {{ usuarioActual?.nombre?.slice(0, 1)?.toUpperCase() || usuarioActual?.email?.slice(0, 1)?.toUpperCase() || 'U' }}
+            </span>
+            <div class="min-w-0 flex-1">
+              <h2 id="profile-settings-title" class="text-sm font-semibold text-slate-900">Perfil de usuario</h2>
+              <p class="mt-1 text-[13px] leading-5 text-slate-500">Información de la cuenta con la que iniciaste sesión.</p>
+            </div>
+          </div>
+          <form #profileForm="ngForm" (ngSubmit)="guardarPerfil()" class="mt-6 space-y-6 border-t border-slate-100 pt-5">
+            <div class="grid gap-5 sm:grid-cols-2">
+              <label for="profile-name" class="block text-xs font-medium text-slate-700">
+                Nombre
+                <input id="profile-name" name="profileName" type="text" [(ngModel)]="nombrePerfil"
+                       required minlength="2" maxlength="100" autocomplete="name"
+                       class="mt-2 block w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700">
+              </label>
+              <label for="profile-email" class="block text-xs font-medium text-slate-700">
+                Correo electrónico
+                <input id="profile-email" name="profileEmail" type="email" [(ngModel)]="emailPerfil"
+                       required maxlength="254" autocomplete="email"
+                       class="mt-2 block w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700">
+              </label>
+              <div>
+                <span class="block text-xs font-medium text-slate-700">Rol de acceso</span>
+                <p class="mt-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-500">
+                  {{ usuarioActual?.rol || 'No disponible' }} · Administrado por el sistema
+                </p>
+              </div>
+            </div>
+
+            <div class="space-y-4 rounded-lg border border-slate-200 p-4">
+              <div>
+                <h3 class="text-xs font-semibold text-slate-800">Seguridad de la cuenta</h3>
+                <p class="mt-1 text-xs leading-5 text-slate-500">
+                  Confirma tu contraseña actual para guardar cambios. Para cambiarla, completa también la nueva contraseña.
+                </p>
+              </div>
+              <div class="grid gap-4 sm:grid-cols-2">
+                <label for="profile-current-password" class="block text-xs font-medium text-slate-700 sm:col-span-2">
+                  Contraseña actual
+                  <input id="profile-current-password" name="currentPassword" type="password"
+                         [(ngModel)]="passwordActual" required autocomplete="current-password"
+                         class="mt-2 block w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700 sm:max-w-md">
+                </label>
+                <label for="profile-new-password" class="block text-xs font-medium text-slate-700">
+                  Nueva contraseña <span class="font-normal text-slate-400">(opcional)</span>
+                  <input id="profile-new-password" name="newPassword" type="password"
+                         [(ngModel)]="passwordNueva" minlength="8" maxlength="128"
+                         autocomplete="new-password"
+                         class="mt-2 block w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700">
+                </label>
+                <label for="profile-confirm-password" class="block text-xs font-medium text-slate-700">
+                  Confirmar nueva contraseña
+                  <input id="profile-confirm-password" name="confirmNewPassword" type="password"
+                         [(ngModel)]="confirmarPasswordNueva" [required]="!!passwordNueva"
+                         autocomplete="new-password"
+                         class="mt-2 block w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700">
+                </label>
+              </div>
+            </div>
+
+            <div class="flex justify-end">
+              <button type="submit"
+                      [disabled]="profileForm.invalid || guardandoPerfil || (!!passwordNueva && passwordNueva !== confirmarPasswordNueva)"
+                      class="rounded-lg bg-slate-900 px-4 py-2.5 text-xs font-medium text-white transition-colors hover:bg-slate-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700 disabled:cursor-not-allowed disabled:opacity-50">
+                {{ guardandoPerfil ? 'Guardando…' : 'Guardar perfil' }}
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <!-- Sección 2: Apariencia -->
+        <section *ngIf="seccionActiva === 'apariencia'" id="appearance-settings" aria-labelledby="appearance-settings-title" class="rounded-xl border border-slate-200 bg-white p-5 sm:p-6">
+          <h2 id="appearance-settings-title" class="text-sm font-semibold text-slate-900">Apariencia</h2>
+          <p class="mt-2 max-w-3xl text-[13px] leading-6 text-slate-500">
+            Elige el tema del panel. La preferencia se guarda en este navegador y se aplica en todas las páginas.
+          </p>
+          <div class="mt-6 flex flex-col gap-4 border-t border-slate-100 pt-5 sm:flex-row sm:items-end sm:justify-between">
+            <label for="settings-theme" class="w-full text-[13px] font-medium text-slate-700 sm:max-w-xs">
+              Tema de la interfaz
+              <select id="settings-theme" name="theme" [(ngModel)]="temaActual"
+                      (ngModelChange)="guardarTema()"
+                      class="mt-2 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700">
+                <option value="light">Claro</option>
+                <option value="dark">Oscuro</option>
+              </select>
+            </label>
+            <p class="text-xs leading-5 text-slate-500 sm:mb-2.5">Se aplica inmediatamente en la aplicación.</p>
+          </div>
+        </section>
+
+        <!-- Sección 3: Sistema (Sensibilidad del Perímetro) -->
+        <section *ngIf="seccionActiva === 'sistema'" id="perimeter-settings" aria-labelledby="sensor-settings-title" class="rounded-xl border border-slate-200 bg-white p-5 sm:p-6">
+          <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h2 id="sensor-settings-title" class="text-sm font-semibold text-slate-900">Sensibilidad del perímetro</h2>
+              <p class="mt-2 max-w-2xl text-[13px] leading-6 text-slate-500">
+                Los cambios se guardan en la API y se envían al Arduino por el puerto serial. Si el Arduino está fuera de línea,
+                quedarán pendientes hasta que vuelva a enviar telemetría.
+              </p>
+            </div>
+            <span class="inline-flex w-fit items-center gap-2 rounded-full px-2.5 py-1 text-[11px] font-medium"
+                  [ngClass]="configuracionAplicada ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-800'">
+              <span class="h-2 w-2 rounded-full"
+                    [ngClass]="configuracionAplicada ? 'bg-emerald-500' : 'bg-amber-500'"></span>
+              {{ cargandoUmbrales ? 'Consultando…' : configuracionAplicada ? 'Aplicada en Arduino' : 'Pendiente de Arduino' }}
+            </span>
+          </div>
+
+          <form (ngSubmit)="guardarUmbrales()" class="mt-7 grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-2">
+            <label for="settings-light-margin" class="text-[13px] font-medium text-slate-700">
+              Margen de cambio de luz
+              <span class="mt-2 block text-xs font-normal leading-5 text-slate-500">
+                Diferencia respecto a la calibración para detectar que se interrumpe el haz. Rango 1–500; valor inicial 40.
+              </span>
+              <div class="mt-2.5 flex items-center gap-3">
+                <input id="settings-light-margin" name="margen_cambio" type="number" min="1" max="500" step="1"
+                       [(ngModel)]="umbrales.margen_cambio" required [disabled]="cargandoUmbrales || guardandoUmbrales"
+                       class="w-80 rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700 disabled:bg-slate-100">
+                <span class="shrink-0 text-[11px] text-slate-500">puntos ADC</span>
+              </div>
+            </label>
+
+            <label for="settings-escalation-time" class="text-[13px] font-medium text-slate-700">
+              Tiempo para escalar a intrusión
+              <span class="mt-2 block text-xs font-normal leading-5 text-slate-500">
+                Tiempo continuo de interrupción antes de activar la alerta. Rango 500–60000 ms; valor inicial 3000 ms.
+              </span>
+              <div class="mt-2.5 flex items-center gap-3">
+                <input id="settings-escalation-time" name="tiempo_escalamiento_ms" type="number" min="500" max="60000" step="100"
+                       [(ngModel)]="umbrales.tiempo_escalamiento_ms" required [disabled]="cargandoUmbrales || guardandoUmbrales"
+                       class="w-80 rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700 disabled:bg-slate-100">
+                <span class="shrink-0 text-[11px] text-slate-500">milisegundos</span>
+              </div>
+            </label>
+
+            <div class="flex flex-wrap items-center gap-3 pt-2 md:col-span-2">
+              <button type="submit" [disabled]="cargandoUmbrales || guardandoUmbrales"
+                      class="rounded-lg bg-slate-900 px-4 py-2.5 text-xs font-medium text-white hover:bg-slate-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700 disabled:cursor-not-allowed disabled:opacity-50">
+                {{ guardandoUmbrales ? 'Guardando…' : 'Guardar y aplicar' }}
+              </button>
+              <button type="button" (click)="cargarUmbrales()" [disabled]="cargandoUmbrales || guardandoUmbrales"
+                      class="rounded-lg border border-slate-300 px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700 disabled:cursor-not-allowed disabled:opacity-50">
+                Recargar valores
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <!-- Sección 4: Sistema (Avisos Críticos) -->
+        <section *ngIf="seccionActiva === 'sistema'" id="notification-settings" aria-labelledby="notification-settings-title" class="rounded-xl border border-slate-200 bg-white p-5 sm:p-6">
+          <h2 id="notification-settings-title" class="text-sm font-semibold text-slate-900">Avisos críticos</h2>
+          <p class="mt-2 max-w-3xl text-[13px] leading-6 text-slate-500">
+            Muestra una notificación del navegador cuando aparece una nueva alerta crítica (intrusión, puerta o impacto).
+            Los avisos requieren permiso del navegador y solo se generan mientras el panel está abierto.
+          </p>
+          <div class="mt-6 flex flex-col gap-5 border-t border-slate-100 pt-5 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p class="text-[13px] font-medium text-slate-700">
+                Permiso del navegador: {{ permisoNotificaciones === 'unsupported' ? 'No disponible' : permisoNotificaciones }}
+              </p>
+              <p class="mt-1 text-xs text-slate-500">
+                Activado: {{ notificacionesHabilitadas ? 'Sí' : 'No' }}
+              </p>
+            </div>
+            <label for="settings-notifications-toggle"
+                   class="inline-flex items-center gap-3"
+                   [class.cursor-pointer]="!guardandoPreferencias && permisoNotificaciones !== 'unsupported'"
+                   [class.cursor-not-allowed]="guardandoPreferencias || permisoNotificaciones === 'unsupported'">
+              <span class="text-[13px] font-medium text-slate-700">Activar avisos</span>
+              <span class="relative inline-flex h-5 w-9 shrink-0 items-center">
+                <input id="settings-notifications-toggle" type="checkbox"
+                       [ngModel]="notificacionesHabilitadas"
+                       (ngModelChange)="cambiarNotificaciones($event)"
+                       [disabled]="guardandoPreferencias || permisoNotificaciones === 'unsupported'"
+                       class="peer sr-only">
+                <span class="h-5 w-9 rounded-full bg-slate-200 transition-colors peer-checked:bg-slate-900 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-slate-700 peer-disabled:opacity-50"></span>
+                <span class="pointer-events-none absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform peer-checked:translate-x-4"></span>
+              </span>
+            </label>
+          </div>
+        </section>
+
+        <!-- Sección 5: Sistema (Actualización del Panel) -->
+        <section *ngIf="seccionActiva === 'sistema'" id="dashboard-settings" aria-labelledby="dashboard-settings-title" class="rounded-xl border border-slate-200 bg-white p-5 sm:p-6">
+          <h2 id="dashboard-settings-title" class="text-sm font-semibold text-slate-900">Actualización del panel</h2>
+          <p class="mt-2 max-w-3xl text-[13px] leading-6 text-slate-500">
+            Controla cada cuánto el dashboard consulta el estado y la telemetría de la API. Más consultas pueden aumentar la carga del servidor.
+          </p>
+          <div class="mt-6 flex flex-col gap-4 border-t border-slate-100 pt-5 sm:flex-row sm:items-end sm:gap-6">
+            <!-- Campo Select -->
+            <label for="settings-refresh-interval" class="w-full text-[13px] font-medium text-slate-700 sm:max-w-xs">
+              Frecuencia de consulta
+              
+              <div class="relative mt-2">
+                <select id="settings-refresh-interval" name="refreshInterval" [(ngModel)]="intervaloActualizacion"
+                        (ngModelChange)="guardarIntervaloActualizacion()"
+                        class="block w-full appearance-none rounded-lg border border-slate-300 bg-white pl-3 pr-10 py-2.5 text-sm text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700">
+                  <option *ngFor="let intervalo of intervalosDisponibles" [ngValue]="intervalo">
+                    Cada {{ intervalo }} {{ intervalo === 1 ? 'segundo' : 'segundos' }}
+                  </option>
+                </select>
+                
+                <!-- Flecha personalizada -->
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400">
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+            </label>
+
+            <!-- Texto secundario nivelado con el input -->
+            <p class="text-xs leading-5 text-slate-500 sm:mb-2.5">
+              Se guarda en este navegador y se aplica al abrir el dashboard.
+            </p>
+          </div>
+        </section>
+
+        <!-- Nota al pie de ajustes -->
+        <p class="px-1 text-[11px] leading-5 text-slate-400">
+          Las preferencias de notificaciones y actualización se guardan localmente en este navegador. Los umbrales se guardan en el servidor.
+        </p>
+
+      </div>
+    </div>
+  </div>
+</main>
+<main fallback class="flex-1 space-y-6 p-6 md:p-10" aria-hidden="true">
+  <div class="h-14 animate-pulse rounded-xl bg-slate-100"></div>
+  <div class="grid gap-6 lg:grid-cols-[13rem_minmax(0,1fr)]">
+    <div class="h-48 animate-pulse rounded-xl bg-slate-100"></div>
+    <div class="h-[26rem] animate-pulse rounded-xl bg-slate-100"></div>
+  </div>
+</main>
+</boneyard-skeleton>

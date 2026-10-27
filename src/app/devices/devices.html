@@ -1,13 +1,7 @@
 <main class="flex-1 p-6 md:p-10 space-y-6 overflow-y-auto mt-2">
 
-  <!-- Alerta Superior Flotante -->
-  <div *ngIf="mensajeAlerta"
-       role="status"
-       class="fixed top-6 right-6 z-50 flex items-center gap-2.5 px-4 py-2.5 rounded-xl shadow-lg border text-xs font-medium backdrop-blur-md"
-       [ngClass]="tipoAlerta === 'success' ? 'bg-slate-900 text-white border-slate-800' : 'bg-rose-50 text-rose-800 border-rose-200'">
-    <i [ngClass]="tipoAlerta === 'success' ? 'fa-solid fa-circle-check text-slate-300' : 'fa-solid fa-circle-exclamation text-rose-600'"></i>
-    <span>{{ mensajeAlerta }}</span>
-  </div>
+  <app-feedback-alert [message]="mensajeAlerta" [type]="tipoAlerta" variant="toast-bottom"
+                      (dismissed)="mensajeAlerta = ''"></app-feedback-alert>
 
   <!-- Panel lateral: crear / editar -->
   <div *ngIf="mostrarModal" class="fixed inset-0 z-50 flex h-dvh min-h-screen justify-end bg-slate-900/20">
@@ -143,10 +137,8 @@
   </section>
 
   <!-- Mensaje de Error -->
-  <div *ngIf="error" role="alert" class="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs text-rose-700 flex items-center gap-2">
-    <i class="fa-solid fa-triangle-exclamation"></i>
-    <span>{{ error }}</span>
-  </div>
+  <app-feedback-alert [message]="error" type="error" variant="toast-bottom"
+                      (dismissed)="error = ''"></app-feedback-alert>
 
   <!-- ==================== SKELETON LOADER (CARGANDO = TRUE) ==================== -->
   <div *ngIf="cargando" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 animate-pulse">

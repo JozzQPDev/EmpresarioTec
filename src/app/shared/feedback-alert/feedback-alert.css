@@ -1,0 +1,39 @@
+.feedback-alert-toast {
+  animation: feedback-alert-enter 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.feedback-alert-toast.feedback-alert-leave {
+  animation: feedback-alert-exit 180ms ease-in both;
+  pointer-events: none;
+}
+
+@keyframes feedback-alert-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes feedback-alert-exit {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0) scale(0.98);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feedback-alert-toast,
+  .feedback-alert-toast.feedback-alert-leave {
+    animation: none;
+  }
+}

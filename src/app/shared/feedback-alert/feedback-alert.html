@@ -1,0 +1,36 @@
+<div *ngIf="message && visible"
+     [attr.role]="type === 'success' ? 'status' : 'alert'"
+     [attr.aria-live]="type === 'success' ? 'polite' : 'assertive'"
+     aria-atomic="true"
+     [class.feedback-alert-toast]="variant !== 'inline'"
+     [class.feedback-alert-leave]="leaving"
+     class="flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all duration-200 motion-reduce:transition-none"
+     [ngClass]="{
+       'relative w-full': variant === 'inline',
+       'fixed z-50 w-[calc(100vw-5rem)] max-w-sm sm:w-auto': variant !== 'inline',
+       'bottom-4 right-4 sm:bottom-6 sm:right-6': variant === 'toast' || variant === 'toast-bottom'
+     }">
+
+  <!-- Punto indicador de estado minimalista -->
+  <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full"
+        [ngClass]="type === 'success' ? 'bg-emerald-500' : 'bg-rose-500'"></span>
+
+  <!-- Contenido -->
+  <div class="min-w-0 flex-1">
+    <p class="text-xs font-semibold text-slate-900">
+      {{ type === 'success' ? 'Éxito' : 'Atención' }}
+    </p>
+    <p class="mt-0.5 text-xs text-slate-600 font-normal leading-relaxed">
+      {{ message }}
+    </p>
+  </div>
+
+  <button type="button"
+          (click)="dismiss()"
+          aria-label="Cerrar notificación"
+          title="Cerrar notificación"
+          class="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500">
+    <i class="fa-solid fa-xmark text-xs" aria-hidden="true"></i>
+  </button>
+
+</div>

@@ -5,11 +5,12 @@ import { IntrusionService } from '../services/intrusion.service';
 import { HeaderService } from '../services/header.service';
 import { Usuario, Rol } from '../models/intrusion.model';
 import { ConfirmationDialogComponent } from '../shared/confirmation-dialog/confirmation-dialog';
+import { FeedbackAlertComponent } from '../shared/feedback-alert/feedback-alert';
 
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [CommonModule, FormsModule, ConfirmationDialogComponent],
+  imports: [CommonModule, FormsModule, ConfirmationDialogComponent, FeedbackAlertComponent],
   styleUrl: './users.css',
   templateUrl: './users.html',
 })
@@ -25,7 +26,7 @@ export class UsersComponent implements OnInit {
     activo: true
   };
 
-  cargando: boolean = true; // Estado para controlar el esqueleto de carga
+  cargando: boolean = true; // 👈 Estado para controlar el esqueleto de carga
   editando: boolean = false;
   usuarioIdEditando?: number;
   mostrarModal: boolean = false;
@@ -35,6 +36,7 @@ export class UsersComponent implements OnInit {
   confirmacionEdicion = false;
   actualizandoUsuario = false;
 
+  errorCarga = '';
   mensajeAlerta: string = '';
   tipoAlerta: 'success' | 'error' = 'success';
   private alertaTimer: any;
@@ -56,6 +58,7 @@ export class UsersComponent implements OnInit {
 
   cargarDatos(): void {
     this.cargando = true;
+    this.errorCarga = '';
     this.cdr.detectChanges();
 
     // Cargamos usuarios y roles de forma paralela
@@ -67,6 +70,7 @@ export class UsersComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error al cargar usuarios:', err);
+        this.errorCarga = 'No se pudieron cargar los usuarios. Verifica la conexión con la API.';
         this.cargando = false;
         this.cdr.detectChanges();
       }
@@ -77,7 +81,11 @@ export class UsersComponent implements OnInit {
         this.roles = data;
         this.cdr.detectChanges();
       },
-      error: (err) => console.error('Error al cargar roles:', err)
+      error: (err) => {
+        console.error('Error al cargar roles:', err);
+        this.errorCarga = 'No se pudieron cargar los roles. Verifica la conexión con la API.';
+        this.cdr.detectChanges();
+      }
     });
   }
 

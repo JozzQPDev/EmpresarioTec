@@ -16,31 +16,42 @@
 
 <main class="flex-1 p-6 md:p-10 space-y-6 overflow-y-auto mt-2">
 
+  <app-feedback-alert [message]="error" type="error" variant="toast-bottom"
+                      (dismissed)="error = ''"></app-feedback-alert>
+
   <!-- BARRA DE FILTROS Y BÚSQUEDA -->
   <div class="bg-white rounded-xl p-4 sm:p-5 shadow-xs border border-slate-200/70 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
     
     <!-- Filtros por Nivel (Botones) -->
     <div class="flex flex-wrap items-center gap-1.5">
       <button 
+        type="button"
         (click)="filtrar('TODOS')"
+        [attr.aria-pressed]="filtroNivel === 'TODOS'"
         [class]="filtroNivel === 'TODOS' ? 'bg-slate-900 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
         class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all">
         Todos
       </button>
       <button 
+        type="button"
         (click)="filtrar('SUCCESS')"
+        [attr.aria-pressed]="filtroNivel === 'SUCCESS'"
         [class]="filtroNivel === 'SUCCESS' ? 'bg-emerald-600 text-white shadow-xs' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'"
         class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all">
         Éxito / Monitoreo
       </button>
       <button 
+        type="button"
         (click)="filtrar('WARNING')"
+        [attr.aria-pressed]="filtroNivel === 'WARNING'"
         [class]="filtroNivel === 'WARNING' ? 'bg-amber-600 text-white shadow-xs' : 'bg-amber-50 text-amber-700 hover:bg-amber-100'"
         class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all">
         Advertencias
       </button>
       <button 
+        type="button"
         (click)="filtrar('ERROR')"
+        [attr.aria-pressed]="filtroNivel === 'ERROR'"
         [class]="filtroNivel === 'ERROR' ? 'bg-rose-600 text-white shadow-xs' : 'bg-rose-50 text-rose-700 hover:bg-rose-100'"
         class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all">
         Críticos / Alertas
@@ -56,13 +67,17 @@
         <input 
           type="text" 
           [(ngModel)]="busquedaTexto" 
+          (ngModelChange)="paginaActual = 1"
+          aria-label="Buscar por mensaje, zona, dispositivo o ubicación"
           placeholder="Buscar en logs..." 
           class="w-full pl-9 pr-3 py-2 bg-slate-50/50 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 focus:bg-white transition-all">
       </div>
 
       <button 
+        type="button"
         (click)="cargarLogs()" 
         [disabled]="cargando"
+        aria-label="Actualizar registros"
         title="Actualizar registros"
         class="p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition-colors flex items-center justify-center shrink-0 disabled:opacity-50">
         <i class="fa-solid fa-rotate text-xs" [ngClass]="{'animate-spin': cargando}"></i>
@@ -71,12 +86,40 @@
 
   </div>
 
-  <!-- ALERTA DE ERROR EN LA CARGA -->
-  <div *ngIf="error" class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium flex items-center gap-2.5">
-    <i class="fa-solid fa-triangle-exclamation text-rose-600"></i>
-    <span>{{ error }}</span>
-  </div>
+  <section aria-label="Filtros adicionales del historial"
+           class="grid grid-cols-1 gap-3 rounded-xl border border-slate-200/70 bg-white p-4 sm:grid-cols-2 lg:grid-cols-5">
+    <label class="text-xs text-slate-500">
+      Zona
+      <select [(ngModel)]="filtroZona" (ngModelChange)="paginaActual = 1"
+              class="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700">
+        <option value="TODAS">Todas las zonas</option>
+        <option *ngFor="let zona of zonasDisponibles" [value]="zona">{{ zona }}</option>
+      </select>
+    </label>
+    <label class="text-xs text-slate-500">
+      Dispositivo
+      <select [(ngModel)]="filtroDispositivo" (ngModelChange)="paginaActual = 1"
+              class="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700">
+        <option value="TODOS">Todos los dispositivos</option>
+        <option *ngFor="let dispositivo of dispositivosDisponibles" [value]="dispositivo">{{ dispositivo }}</option>
+      </select>
+    </label>
+    <label class="text-xs text-slate-500">
+      Desde
+      <input type="date" [(ngModel)]="fechaDesde" (ngModelChange)="paginaActual = 1"
+             class="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700">
+    </label>
+    <label class="text-xs text-slate-500">
+      Hasta
+      <input type="date" [(ngModel)]="fechaHasta" (ngModelChange)="paginaActual = 1"
+             class="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700">
+    </label>
+    <p class="self-end text-[11px] leading-5 text-slate-400">
+      La API entrega como máximo 50 eventos por historial.
+    </p>
+  </section>
 
+  <!-- ALERTA DE ERROR EN LA CARGA -->
   <!-- TABLA DE LOGS Y REGISTROS ENVUELTA EN BONEYARD -->
     <div class="bg-white rounded-xl shadow-xs border border-slate-200/70 overflow-hidden">
       
@@ -84,10 +127,11 @@
         <div class="flex items-center gap-2">
           <h3 class="text-sm font-bold text-slate-900">Historial de Eventos Serial y Supabase</h3>
           <span class="text-[11px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-mono font-medium">
-            {{ logsFiltrados.length }} registros
+            {{ logsFiltrados.length }} eventos
           </span>
         </div>
         <button 
+          type="button"
           (click)="limpiarLogsLocales()" 
           class="text-xs text-slate-400 hover:text-rose-600 transition-colors font-medium">
           Limpiar vista
@@ -96,18 +140,20 @@
 
       <div class="overflow-x-auto">
         <table class="w-full text-left text-xs text-slate-600">
+          <caption class="sr-only">Eventos de monitoreo y alertas registrados por la API</caption>
           <thead class="bg-slate-50/50 text-[11px] font-medium uppercase tracking-wider text-slate-400 border-b border-slate-100">
             <tr>
               <th class="px-5 py-3">Fecha / Hora</th>
               <th class="px-5 py-3">Nivel</th>
               <th class="px-5 py-3">Módulo / Dispositivo</th>
+              <th class="px-5 py-3">Zona</th>
               <th class="px-5 py-3">Mensaje del Sistema</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
             
             <!-- Fila de Registro -->
-            <tr *ngFor="let log of logsFiltrados" class="hover:bg-slate-50/50 transition-colors">
+            <tr *ngFor="let log of logsPaginados" class="hover:bg-slate-50/50 transition-colors">
               
               <td class="px-5 py-3 font-mono text-slate-500 whitespace-nowrap">
                 {{ log.timestamp | date:'medium' }}
@@ -133,19 +179,28 @@
               <td class="px-5 py-3 font-medium text-slate-800 whitespace-nowrap">
                 <div class="flex items-center gap-1.5">
                   <i class="fa-solid fa-microchip text-slate-400 text-[11px]"></i>
-                  <span>{{ log.modulo }}</span>
+                  <span>
+                    {{ log.modulo }}
+                    <span *ngIf="log.ubicacion" class="block text-[10px] font-normal text-slate-400">{{ log.ubicacion }}</span>
+                  </span>
                 </div>
               </td>
 
+              <td class="px-5 py-3 text-slate-600 whitespace-nowrap">{{ log.zona || '—' }}</td>
+
               <td class="px-5 py-3 text-slate-700 font-mono text-[11px]">
                 {{ log.mensaje }}
+                <span *ngIf="log.duracionSegundos && log.duracionSegundos > 0"
+                      class="mt-1 block font-sans text-[10px] text-slate-400">
+                  Duración: {{ log.duracionSegundos }} s
+                </span>
               </td>
 
             </tr>
 
             <!-- Estado vacio si no hay registros o coincidencias -->
             <tr *ngIf="logsFiltrados.length === 0">
-              <td colspan="4" class="px-5 py-16 text-center text-slate-400">
+              <td colspan="5" class="px-5 py-16 text-center text-slate-400">
                 <div class="flex flex-col items-center justify-center space-y-2">
                   <i class="fa-solid fa-terminal text-2xl text-slate-300"></i>
                   <p class="text-xs font-medium">No se encontraron registros de logs que coincidan con los filtros.</p>
@@ -156,6 +211,22 @@
           </tbody>
         </table>
       </div>
+
+      <footer class="flex flex-col gap-3 border-t border-slate-100 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <p class="text-[11px] text-slate-500" aria-live="polite">
+          Página {{ paginaActual }} de {{ totalPaginas }} · {{ logsFiltrados.length }} eventos filtrados
+        </p>
+        <nav aria-label="Paginación del historial" class="flex items-center gap-2">
+          <button type="button" (click)="cambiarPagina(paginaActual - 1)" [disabled]="paginaActual === 1"
+                  class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40">
+            Anterior
+          </button>
+          <button type="button" (click)="cambiarPagina(paginaActual + 1)" [disabled]="paginaActual === totalPaginas"
+                  class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40">
+            Siguiente
+          </button>
+        </nav>
+      </footer>
 
     </div>
 

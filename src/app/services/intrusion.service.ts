@@ -3,18 +3,28 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import {
   AlertaCritica,
+  ConfiguracionUmbrales,
   Dispositivo,
   IntrusionState,
   EstadoPerimetro,
   MonitoreoGeneral,
   Usuario,
-  Rol
+  Rol,
+  TelemetriaSensores
 } from '../models/intrusion.model';
 
 export interface ApiResponse {
   codigo: number;
   mensaje: string;
   intrusiones: string | number;
+  zona: string;
+  descripcion: string;
+  serial_conectado: boolean;
+  telemetria_vigente: boolean;
+  ultima_telemetria: string | null;
+  sensores: TelemetriaSensores | null;
+  umbrales: ConfiguracionUmbrales;
+  configuracion_aplicada: boolean;
 }
 
 @Injectable({
@@ -35,10 +45,33 @@ export class IntrusionService {
           estado: estadoValido,
           intrusiones_totales: Number(res.intrusiones) || 0,
           dispositivo: 'Dispositivo de perímetro',
-          mensaje: res.mensaje
+          mensaje: res.mensaje,
+          zona: res.zona,
+          descripcion: res.descripcion,
+          serial_conectado: res.serial_conectado,
+          telemetria_vigente: res.telemetria_vigente,
+          ultima_telemetria: res.ultima_telemetria,
+          sensores: res.sensores,
+          umbrales: res.umbrales,
+          configuracion_aplicada: res.configuracion_aplicada
         };
       })
     );
+  }
+
+  obtenerConfiguracionUmbrales(): Observable<ConfiguracionUmbrales & { aplicada: boolean; pendiente: boolean }> {
+    return this.http.get<ConfiguracionUmbrales & { aplicada: boolean; pendiente: boolean }>(
+      `${this.apiUrl}/configuracion/umbrales`
+    );
+  }
+
+  actualizarConfiguracionUmbrales(configuracion: ConfiguracionUmbrales):
+    Observable<ConfiguracionUmbrales & { aplicada: boolean; pendiente: boolean; mensaje: string }> {
+    return this.http.put<ConfiguracionUmbrales & {
+      aplicada: boolean;
+      pendiente: boolean;
+      mensaje: string;
+    }>(`${this.apiUrl}/configuracion/umbrales`, configuracion);
   }
 
   obtenerHistorialMonitoreo(): Observable<MonitoreoGeneral[]> {

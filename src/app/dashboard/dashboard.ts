@@ -1,17 +1,30 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { IntrusionService } from '../services/intrusion.service';
-import { IntrusionState, EstadoPerimetro, AlertaCritica, MonitoreoGeneral, Dispositivo } from '../models/intrusion.model';
+import {
+  IntrusionState,
+  EstadoPerimetro,
+  AlertaCritica,
+  MonitoreoGeneral,
+  Dispositivo
+} from '../models/intrusion.model';
+import { AppPreferencesService } from '../services/app-preferences.service';
 import { Subscription, MonoTypeOperatorFunction, interval, of, forkJoin } from 'rxjs';
-import { switchMap, startWith, catchError } from 'rxjs/operators';
+import { switchMap, startWith, catchError, tap } from 'rxjs/operators';
 import { SkeletonComponent } from 'boneyard-js/angular';
 import { DASHBOARD_BONES } from './dashboard-bones';
+import { FeedbackAlertComponent } from '../shared/feedback-alert/feedback-alert';
 
 const FORMATO_HORA_PERU = new Intl.DateTimeFormat('en-GB', {
   timeZone: 'America/Lima',
   hour: '2-digit',
   hourCycle: 'h23'
 });
+const UMBRALES_POR_DEFECTO = {
+  margen_cambio: 40,
+  tiempo_escalamiento_ms: 3000
+};
 
 export type NivelPerimetro = 'desconectado' | 'seguro' | 'advertencia' | 'critico';
 export type FiltroNivel = 'todos' | 'advertencia' | 'critico';
@@ -41,7 +54,7 @@ export interface PuntoHora {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, SkeletonComponent],
+  imports: [CommonModule, RouterLink, SkeletonComponent, FeedbackAlertComponent],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })
@@ -49,14 +62,33 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   readonly bonesCarga = DASHBOARD_BONES;
   cargando = true;
-  error = '';                       // NUEVO: mensaje de error de carga
-  ultimaLectura: Date | null = null; // NUEVO: última respuesta válida del Arduino
-  filtroNivel: FiltroNivel = 'todos'; // NUEVO: filtro del historial
+  error = '';
+  apiDisponible = false;
+  ultimaRespuestaApi: Date | null = null;
+  filtroNivel: FiltroNivel = 'todos';
+  readonly componentesHardware = [
+    { nombre: 'Sensor de luz / barrera', pin: 'A0', tipo: 'Entrada analógica' },
+    { nombre: 'Sensor de impacto', pin: '9', tipo: 'Entrada digital' },
+    { nombre: 'Sensor de puerta', pin: '10', tipo: 'Entrada digital' },
+    { nombre: 'LED verde', pin: '3', tipo: 'Salida' },
+    { nombre: 'LED amarillo', pin: '4', tipo: 'Salida' },
+    { nombre: 'LED rojo', pin: '5', tipo: 'Salida' },
+    { nombre: 'Relé', pin: '7', tipo: 'Salida' },
+    { nombre: 'Buzzer', pin: '8', tipo: 'Salida' }
+  ];
 
   estadoActual: IntrusionState = {
     estado: EstadoPerimetro.SIN_CONEXION,
     intrusiones_totales: 0,
-    dispositivo: 'Sensor FC-51 (Pin 2)'
+    dispositivo: 'Dispositivo de perímetro',
+    zona: '',
+    descripcion: '',
+    serial_conectado: false,
+    telemetria_vigente: false,
+    ultima_telemetria: null,
+    sensores: null,
+    umbrales: { ...UMBRALES_POR_DEFECTO },
+    configuracion_aplicada: false
   };
 
   historialEventos: IntrusionState[] = [];
@@ -90,6 +122,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   constructor(
     private intrusionService: IntrusionService,
+    private preferences: AppPreferencesService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -106,23 +139,50 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   /** Nivel que dibuja el titular de estado. */
   get nivelActual(): NivelPerimetro {
+    if (!this.conectado) return 'desconectado';
     return this.nivelDeCodigo(this.estadoActual.estado);
   }
 
-  /** Conectado = el último estado recibido no es SIN_CONEXION. */
+  /** La API informa el estado real de la conexión del puerto serial. */
   get conectado(): boolean {
-    return this.estadoActual.estado !== EstadoPerimetro.SIN_CONEXION;
+    return this.estadoActual.serial_conectado;
+  }
+
+  get permisoNotificaciones(): NotificationPermission | 'unsupported' {
+    return this.preferences.notificationPermission();
+  }
+
+  get notificacionesHabilitadas(): boolean {
+    return this.preferences.notificationsEnabled();
+  }
+
+  get tituloEstadoActual(): string {
+    return this.conectado
+      ? this.getNombreEstado(this.estadoActual.estado)
+      : 'Sin conexión con el Arduino';
+  }
+
+  get mensajeDiagnostico(): string {
+    if (!this.apiDisponible) return 'No se puede comunicar con la API.';
+    if (!this.conectado) return 'La API responde, pero la telemetría del Arduino no llegó en los últimos 3 segundos.';
+    return 'API y Arduino conectados.';
+  }
+
+  get fechaUltimaTelemetria(): Date | null {
+    if (!this.estadoActual.ultima_telemetria) return null;
+    const fecha = new Date(this.estadoActual.ultima_telemetria);
+    return Number.isNaN(fecha.getTime()) ? null : fecha;
   }
 
   get zonaActual(): string {
-    return this.obtenerCamposMensaje()['ZONA'] ?? '';
+    return this.estadoActual.zona || this.obtenerCamposMensaje()['ZONA'] || '';
   }
 
   get descripcionActual(): string {
-    return this.obtenerCamposMensaje()['DESCRIPCION'] ?? '';
+    return this.estadoActual.descripcion || this.obtenerCamposMensaje()['DESCRIPCION'] || '';
   }
 
-  /** El backend antepone el nombre del estado ("ZONA SEGURA: ..."); el titular ya lo dice, así que se quita. */
+  /** Conserva compatibilidad con mensajes seriales estructurados de versiones anteriores. */
   get mensajeEstado(): string {
     const mensaje = (this.estadoActual.mensaje ?? '').trim();
     if (this.zonaActual || this.descripcionActual) return '';
@@ -233,7 +293,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
 
-  /** Refresca ambos historiales sin skeleton al detectar una intrusión nueva. */
+  /** Refresca ambos historiales al detectar una transición de estado. */
   private recargarAlertas(): void {
     forkJoin({
       alertas: this.intrusionService.obtenerHistorialAlertas(),
@@ -252,18 +312,31 @@ export class DashboardComponent implements OnInit, OnDestroy {
   // ---------- Tiempo real ----------
 
   private iniciarMonitoreoTiempoReal(): void {
-    this.subscripcionTimer = interval(1000)
+    this.subscripcionTimer = interval(this.preferences.getRefreshIntervalSeconds() * 1000)
       .pipe(
         startWith(0),
         switchMap(() =>
           this.intrusionService.obtenerEstado().pipe(
+            tap(() => {
+              this.apiDisponible = true;
+              this.ultimaRespuestaApi = new Date();
+            }),
             catchError((err) => {
+              this.apiDisponible = false;
               console.warn('API Flask desconectada', err);
               return of({
                 estado: EstadoPerimetro.SIN_CONEXION,
                 intrusiones_totales: this.estadoActual.intrusiones_totales,
                 dispositivo: this.nombreDispositivo,
-                mensaje: 'Servidor desconectado'
+                mensaje: 'Servidor desconectado',
+                zona: '',
+                descripcion: 'No se pudo consultar la API.',
+                serial_conectado: false,
+                telemetria_vigente: false,
+                ultima_telemetria: this.estadoActual.ultima_telemetria,
+                sensores: this.estadoActual.sensores,
+                umbrales: { ...UMBRALES_POR_DEFECTO },
+                configuracion_aplicada: false
               });
             })
           )
@@ -271,10 +344,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (data) => {
-          this.estadoActual = { ...data, dispositivo: this.nombreDispositivo };
-          if (data.estado !== EstadoPerimetro.SIN_CONEXION) {
-            this.ultimaLectura = new Date();
-          }
+          this.estadoActual = {
+            ...data,
+            dispositivo: this.nombreDispositivo,
+            umbrales: {
+              ...UMBRALES_POR_DEFECTO,
+              ...(data.umbrales ?? {})
+            }
+          };
           this.verificarYAgregarHistorialLocal(data);
           this.cdr.detectChanges();
         }
@@ -333,16 +410,28 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (nuevoEstado.estado === EstadoPerimetro.SIN_CONEXION || nuevoEstado.estado === this.ultimoEstadoRegistrado) {
       return;
     }
+    const esPrimeraLectura = this.ultimoEstadoRegistrado === null;
     this.ultimoEstadoRegistrado = nuevoEstado.estado;
 
     this.historialEventos.unshift({ ...nuevoEstado, timestamp: new Date() });
     if (this.historialEventos.length > 10) this.historialEventos.pop();
     this.lineaTiempo = [...this.historialEventos].reverse();
 
-    // Entró en estado crítico: trae el historial actualizado de la BD
-    if (this.nivelDeCodigo(nuevoEstado.estado) === 'critico') {
-      this.recargarAlertas();
+    if (!esPrimeraLectura && nuevoEstado.estado >= EstadoPerimetro.ALERTA_CRITICA) {
+      this.enviarNotificacionCritica(nuevoEstado);
     }
+
+    this.recargarAlertas();
+  }
+
+  private enviarNotificacionCritica(estado: IntrusionState): void {
+    if (!this.notificacionesHabilitadas || this.permisoNotificaciones !== 'granted') return;
+
+    const notificacion = new Notification(this.getNombreEstado(estado.estado), {
+      body: `${estado.zona || 'Zona sin especificar'}: ${estado.descripcion || estado.mensaje || ''}`,
+      tag: `empresariotec-alerta-${estado.estado}`
+    });
+    notificacion.onclick = () => window.focus();
   }
 
   // ---------- Series para los gráficos ----------
@@ -386,7 +475,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }
       }
       if (porTipo.has(a.codigo)) porTipo.set(a.codigo, (porTipo.get(a.codigo) ?? 0) + 1);
-      if (typeof a.duracion_segundos === 'number') {
+      if (typeof a.duracion_segundos === 'number' && a.duracion_segundos > 0) {
         sumaDuracion += a.duracion_segundos;
         conDuracion++;
       }

@@ -26,7 +26,8 @@ export class SidebarComponent {
     { categoria: 'Menú Principal', titulo: 'Dashboard', ruta: '/dashboard', icono: 'fa-solid fa-shield-halved text-blue-400', clave: 'dashboard' },
     { categoria: 'Menú Principal', titulo: 'Dispositivos & Pines', ruta: '/devices', icono: 'fa-solid fa-microchip text-slate-400', clave: 'devices' },
     { categoria: 'Usuarios', titulo: 'Gestión de Accesos', ruta: '/usuarios', icono: 'fa-solid fa-users text-slate-400', clave: 'usuarios' },
-    { categoria: 'Logs', titulo: 'Logs del Sistema', ruta: '/logs', icono: 'fa-solid fa-terminal text-slate-400', clave: 'logs' }
+    { categoria: 'Logs', titulo: 'Logs del Sistema', ruta: '/logs', icono: 'fa-solid fa-terminal text-slate-400', clave: 'logs' },
+    { categoria: 'Ajustes', titulo: 'Configuración', ruta: '/settings', icono: 'fa-solid fa-gear text-slate-400', clave: 'settings' }
   ];
 
   constructor(
@@ -44,6 +45,8 @@ export class SidebarComponent {
       this.headerService.cambiarHeader('Dispositivos y Pines', 'Control de Hardware y Arduino');
     } else if (seccion === 'logs') {
       this.headerService.cambiarHeader('Logs del Sistema', 'Depuración y registros de actividad serial');
+    } else if (seccion === 'settings') {
+      this.headerService.cambiarHeader('Configuración del sistema', 'Administra tu cuenta y personaliza el comportamiento del sistema');
     }
   }
 }

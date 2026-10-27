@@ -3,8 +3,28 @@ export interface IntrusionState {
   estado: number;
   intrusiones_totales: number;
   dispositivo: string;
+  zona: string;
+  descripcion: string;
+  serial_conectado: boolean;
+  telemetria_vigente: boolean;
+  ultima_telemetria: string | null;
+  sensores: TelemetriaSensores | null;
+  umbrales: ConfiguracionUmbrales;
+  configuracion_aplicada: boolean;
   timestamp?: string | Date;
   mensaje?: string;
+}
+
+export interface TelemetriaSensores {
+  luz: number;
+  luz_base: number;
+  puerta_abierta: boolean;
+  impacto_detectado: boolean;
+}
+
+export interface ConfiguracionUmbrales {
+  margen_cambio: number;
+  tiempo_escalamiento_ms: number;
 }
 
 // Códigos de estado del sistema y conexión
@@ -99,5 +119,19 @@ export interface SesionUsuario {
 
 export interface LoginResponse {
   mensaje: string;
+  token: string;
+  usuario: SesionUsuario;
+}
+
+export interface PerfilActualizacionRequest {
+  nombre: string;
+  email: string;
+  current_password: string;
+  new_password?: string;
+}
+
+export interface PerfilActualizacionResponse {
+  mensaje: string;
+  token: string;
   usuario: SesionUsuario;
 }

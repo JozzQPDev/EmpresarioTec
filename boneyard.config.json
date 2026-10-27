@@ -1,6 +1,7 @@
 {
   "routes": [
     "/dashboard",
+    "/settings",
     "/users",
     "/logs"
   ]

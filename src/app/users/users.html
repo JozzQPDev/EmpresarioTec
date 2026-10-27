@@ -1,12 +1,10 @@
 <main class="flex-1 p-6 md:p-10 space-y-6 overflow-y-auto mt-2 relative">
 
   <!-- ALERTA FLOTANTE (TOAST) -->
-  <div *ngIf="mensajeAlerta"
-       class="fixed top-6 right-6 z-50 flex items-center gap-2.5 px-4 py-2.5 rounded-xl shadow-lg border text-xs font-medium transition-all animate-in fade-in slide-in-from-top-4 duration-300"
-       [ngClass]="tipoAlerta === 'success' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-rose-50 text-rose-800 border-rose-200'">
-    <i class="text-sm" [ngClass]="tipoAlerta === 'success' ? 'fa-solid fa-circle-check text-emerald-600' : 'fa-solid fa-circle-exclamation text-rose-600'"></i>
-    <span>{{ mensajeAlerta }}</span>
-  </div>
+  <app-feedback-alert [message]="mensajeAlerta" [type]="tipoAlerta" variant="toast-bottom"
+                      (dismissed)="mensajeAlerta = ''"></app-feedback-alert>
+  <app-feedback-alert [message]="errorCarga" type="error" variant="toast-bottom"
+                      (dismissed)="errorCarga = ''"></app-feedback-alert>
 
   <!-- MODAL FLOTANTE (CREAR / EDITAR) -->
   <div *ngIf="mostrarModal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4 min-h-screen w-full">

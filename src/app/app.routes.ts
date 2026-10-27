@@ -5,6 +5,7 @@ import { DashboardComponent } from './dashboard/dashboard';
 import { UsersComponent } from './users/users';
 import { Logs } from './logs/logs';
 import { Devices } from './devices/devices'; // <--- Importa tu componente de dispositivos
+import { SettingsComponent } from './settings/settings';
 import { authGuard } from './guards/auth-guard';
 
 export const routes: Routes = [
@@ -46,6 +47,11 @@ export const routes: Routes = [
         path: 'logs',
         component: Logs,
         data: { titulo: 'LOGS DEL SISTEMA', subtitulo: 'Depuración y registros de actividad serial' }
+      },
+      {
+        path: 'settings',
+        component: SettingsComponent,
+        data: { titulo: 'Configuración del sistema', subtitulo: 'Administra tu cuenta y personaliza el comportamiento del sistema.' }
       }
     ]
   },
